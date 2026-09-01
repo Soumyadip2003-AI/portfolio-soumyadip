@@ -112,7 +112,7 @@ export function ChatWidget() {
       >
         <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
           <p className="font-display text-lg text-ink">{chat.panelTitle}</p>
-          <span className="text-[10px] uppercase tracking-[0.2em] text-ink-faint">Gemini</span>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-ink-faint">{chat.panelBadge}</span>
         </div>
 
         <div

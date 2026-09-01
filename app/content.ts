@@ -406,6 +406,8 @@ export const chat = {
   launcherOpen: "Ask about me",
   launcherClose: "Close",
   panelTitle: "Ask about Soumyadip",
+  /* The small label in the top-right of the chat panel. */
+  panelBadge: "AI",
   emptyState: "Ask about his projects, stack, experience, or availability.",
   /* The suggested question buttons. */
   /* Shown in small text above the input. Visitors should know chats are kept. */
