@@ -19,7 +19,10 @@
   --bg: #08080d;
   --ink: #ece9e3;
   --ink-dim: #a8a6a1;
-  --ink-faint: #6f6e72;
+  /* 4.76:1 on --bg, 4.51:1 on --card. This carries the 10-12px labels, the
+     eyebrows, dates and footer headings, and at #6f6e72 it sat at 3.95:1,
+     under the 4.5:1 WCAG AA floor for text this small. */
+  --ink-faint: #7c7b80;
   --line: rgba(255, 255, 255, 0.12);
   --card: #101017;
   color-scheme: dark;
