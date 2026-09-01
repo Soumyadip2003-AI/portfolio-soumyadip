@@ -66,10 +66,15 @@ function Reveal({
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y: 24 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      /* Reduced motion takes away the travel, never the arrival. Branching here to
+         drop whileInView blanked the page below the hero: useReducedMotion is null
+         on the server and on the first client render, so opacity 0 was committed
+         before it resolved to true, and with the target then gone nothing ever
+         animated it back. Keep one unconditional target and only stop the clock. */
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={reduce ? { duration: 0 } : { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
