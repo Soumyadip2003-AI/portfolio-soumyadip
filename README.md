@@ -62,8 +62,11 @@ It is built to be safe to point at a recruiter:
 - **Blank means silent.** Any field left `""` in section 9b is dropped from the
   briefing, so the assistant says "email him" rather than answering with
   nothing.
-- **Guardrails:** 12 requests/min per IP, 10-message history cap, 1000-character
-  messages, retry on upstream 503 only.
+- **Guardrails:** a 20s deadline on every outbound call, 10-message history cap,
+  1000-character messages, retry on upstream 503 only, and 12 requests/min per
+  IP — though that counter is in-memory per instance, so the real ceiling is 12
+  x however many instances are warm. Fine at portfolio traffic; swap in Upstash
+  before trusting it as a limit.
 
 Model defaults to `gemini-3.5-flash-lite`. Override with `GEMINI_MODEL`.
 
@@ -83,6 +86,11 @@ Model defaults to `gemini-3.5-flash-lite`. Override with `GEMINI_MODEL`.
   mid-sentence.
 - **Retry on 503 only.** A 429 here is the quota asking for several seconds of
   backoff; retrying immediately just spends another unit.
+- **A 20s deadline, shared across retries.** The deployed assistant answered the
+  same question in 1.0s, then 37s, then 67s: the upstream stalls occasionally,
+  and an unbounded `fetch` just waits. Worse, the widget's `busy` flag clears
+  only in `finally`, so one stalled request left Send disabled for the rest of
+  the visit. A slow answer nobody waits for is worth less than a fast failure.
 - **Sticky-stack in CSS, not GSAP.** `position: sticky` does the same job,
   ships no library, and works with JavaScript disabled.
 
