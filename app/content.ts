@@ -37,7 +37,7 @@ export const profile = {
   linkedin: "https://linkedin.com/in/soumyadip1234",
   /* Your live portfolio URL. Fill this in after deploying; the chatbot shares it.
      Leave "" and the chatbot simply does not mention a website. */
-  website: "",
+  website: "https://portfolio-soumyadip.vercel.app",
 
   /* Public link to your latest resume. The chatbot hands this out when someone
      asks for your CV. Leave it as "" and the bot points them at your email.
@@ -62,7 +62,7 @@ export const seo = {
     "Full-stack and AI systems, built to hold up in production. Recent work: Nova, an autonomous GPT-5.1 coding agent, and a 10-model clinical ML ensemble.",
   /* Where this site is deployed. On Vercel the real domain is detected
      automatically; this is the fallback for other hosts. */
-  siteUrl: "http://localhost:3000",
+  siteUrl: "https://portfolio-soumyadip.vercel.app",
 };
 
 /* --------------------------------------------------------------------------
