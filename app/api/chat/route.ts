@@ -272,25 +272,71 @@ export async function POST(req: Request) {
     candidate?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("").trim() ?? "";
 
   if (!text) {
-    const truncated = candidate?.finishReason === "MAX_TOKENS";
-    console.error("gemini empty answer", candidate?.finishReason, data?.usageMetadata);
-    return NextResponse.json(
-      { error: truncated ? "That answer ran long. Try a narrower question." : "No answer came back. Try rephrasing." },
-      { status: 502 },
-    );
+    /* A 200 with no text is usually transient: a safety false positive or a
+       model hiccup. Giving up immediately turned that into a dead end for the
+       visitor, so try once more before reporting anything. */
+    const reason = candidate?.finishReason;
+    console.error("gemini empty answer", reason, JSON.stringify(data?.usageMetadata ?? {}));
+
+    if (reason !== "MAX_TOKENS" && reason !== "SAFETY") {
+      const retry = await callGemini(key, payload);
+      const retryText: string =
+        retry?.candidates?.[0]?.content?.parts
+          ?.map((p: { text?: string }) => p.text ?? "")
+          .join("")
+          .trim() ?? "";
+      if (retryText) {
+        after(() => notify(buildExchange(req, session, contents, retryText)));
+        return NextResponse.json({ text: retryText });
+      }
+      console.error("gemini empty answer on retry too");
+    }
+
+    /* Name the cause: "rephrase" is useless advice when the model refused on
+       safety grounds or ran out of room. */
+    const message =
+      reason === "MAX_TOKENS"
+        ? "That answer ran long. Try a narrower question."
+        : reason === "SAFETY"
+          ? "I cannot answer that one. Try asking about his work."
+          : "The assistant did not reply. Please try again.";
+    return NextResponse.json({ error: message }, { status: 502 });
   }
 
   /* after() runs once the reply is already on its way, so the visitor never
      waits on Telegram and a failure there cannot turn into a failed answer. */
-  after(() =>
-    notify({
-      session,
-      question: contents[contents.length - 1]?.parts[0]?.text ?? "",
-      answer: text,
-      place: describePlace(req),
-      turn: contents.filter((c) => c.role === "user").length,
-    }),
-  );
+  after(() => notify(buildExchange(req, session, contents, text)));
 
   return NextResponse.json({ text });
+}
+
+/* One place that knows how to call Gemini, so the retry above cannot drift from
+   the original request. */
+async function callGemini(key: string, payload: string) {
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-goog-api-key": key },
+      body: payload,
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function buildExchange(
+  req: Request,
+  session: string,
+  contents: { role: string; parts: { text: string }[] }[],
+  answer: string,
+): Exchange {
+  return {
+    session,
+    question: contents[contents.length - 1]?.parts[0]?.text ?? "",
+    answer,
+    place: describePlace(req),
+    turn: contents.filter((c) => c.role === "user").length,
+  };
 }
