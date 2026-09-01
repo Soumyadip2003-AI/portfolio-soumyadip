@@ -98,14 +98,3 @@ Model defaults to `gemini-3.5-flash-lite`. Override with `GEMINI_MODEL`.
 | `app/api/chat/route.ts` | Gemini proxy, prompt, rate limiting |
 | `app/globals.css` | theme tokens, gradients, film grain |
 | `public/` | hero video and project screenshots |
-
----
-
-## Deploying
-
-Set `GEMINI_API_KEY` in your host's environment settings, never in a committed
-file. `.env*` is gitignored and the key has never been committed to this
-repository.
-
-Without it the site still builds and renders; only the assistant reports that it
-is not configured.
