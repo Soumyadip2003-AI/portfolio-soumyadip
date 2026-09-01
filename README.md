@@ -1,38 +1,57 @@
 # portfolio-soumyadip
 
-Personal portfolio site for Soumyadip Sarkar. Next.js 15 (App Router), React 19,
-Tailwind v4, with scroll animation from `motion` and `gsap`.
+Personal portfolio for Soumyadip Sarkar, with an AI assistant that answers
+recruiter questions from a single source of truth.
 
-## Develop
+Next.js 15 (App Router), React 19, Tailwind v4, Motion, and the Gemini API.
+
+## Run it
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
+cp .env.example .env.local   # then paste your Gemini key
+npm run dev                  # http://localhost:3000
 ```
 
-## Build
+## Editing the content
 
-```bash
-npm run build
-npm run start
-```
+**Everything you can read on the site lives in [`app/content.ts`](app/content.ts).**
+Every sentence, link, project card, and number. The page and the chatbot both
+read from that one file, so they cannot fall out of sync.
+
+- **Add a project** — copy any block inside `projects`, paste it after the last
+  one, edit the values. A new card appears and the assistant learns about it.
+- **Add an image** — drop the file in `public/`, then reference it as
+  `"/name.png"`. Set `image: null` for a gradient instead.
+- **Hiring answers** — section 9b holds availability, notice period, relocation,
+  and salary. Blank fields make the assistant defer to email rather than guess.
+
+## The assistant
+
+A floating widget answers questions about the resume, grounded in `content.ts`.
+
+- The API key stays server-side in `app/api/chat/route.ts`; the browser never
+  sees it.
+- The assistant is instructed to answer only from the supplied facts and to
+  point at the contact email for anything else, so it declines to invent
+  employers, dates, or salary figures.
+- Guardrails: 12 requests/min per IP, 10-message history cap, 1000-char
+  messages, retry on upstream 503 only.
+
+Model is `gemini-3.5-flash-lite` by default. Override with `GEMINI_MODEL`.
 
 ## Layout
 
-- `app/page.tsx` — the entire page. All content (projects, principles, posts,
-  stats, socials, contact email) lives in the `const` arrays at the top.
-- `app/layout.tsx` — fonts and metadata.
-- `app/globals.css` — theme tokens and animation classes.
-- `components/ui/blackhole-hero-section.tsx` — WebGL hero background.
+| Path | What |
+|---|---|
+| `app/content.ts` | all site content, the only file you normally edit |
+| `app/page.tsx` | section components, no content |
+| `app/chat-widget.tsx` | the assistant UI |
+| `app/api/chat/route.ts` | Gemini proxy, prompt, rate limiting |
+| `app/globals.css` | theme tokens, gradients, grain |
+| `public/` | hero video and project screenshots |
 
-## Before launch
+## Deploying
 
-Placeholders to replace, all in `app/page.tsx`:
-
-- `CONTACT_EMAIL` — currently `hello@soumyadip.dev`
-- `SOCIALS` hrefs — currently point at bare `github.com` / `linkedin.com` / `x.com`
-- `STATS` numbers — sample figures
-- `PROJECTS` / `POSTS` / `Quote` — sample content and `picsum.photos` images
-
-Images use `next/image` with optimization off (`next.config.ts`); swap in real
-assets and drop `unoptimized` if you host them yourself.
+Set `GEMINI_API_KEY` in your host's environment settings. Never commit it:
+`.env*` is gitignored.
