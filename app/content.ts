@@ -339,11 +339,12 @@ export const hiring = {
 
 export const personal = {
   /* e.g. "Chess, cricket, and building small side projects at night." */
-  hobbies: "",
+  hobbies:
+    "Reading books, playing guitar, and the gym for weight lifting and hybrid training. Football is his outdoor game and chess his indoor one.",
   /* e.g. "Blue." */
-  favouriteColour: "",
+  favouriteColour: "Black.",
   /* e.g. "Biryani, and his mother's fish curry." */
-  favouriteFood: "",
+  favouriteFood: "Mutton biriyani.",
   /* Anything else worth a smile. Optional. */
   funFact: "",
 };
