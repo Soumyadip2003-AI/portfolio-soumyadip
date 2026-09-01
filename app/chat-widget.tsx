@@ -42,6 +42,7 @@ export function ChatWidget() {
   /* One id per page load, so the notifications for a visit can be grouped. */
   const sessionRef = useRef<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const launcherRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -53,12 +54,19 @@ export function ChatWidget() {
   }, [open]);
 
   useEffect(() => {
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      /* Escape has to hand focus back to the launcher that opened the panel.
+         Without this it lands on <body> and a keyboard visitor has to tab in from
+         the top of the page again. Bound to open so it cannot steal focus from
+         someone pressing Escape with the panel already closed. */
+      launcherRef.current?.focus();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [open]);
 
   async function send(raw: string) {
     const q = raw.trim();
@@ -111,6 +119,7 @@ export function ChatWidget() {
       {/* Launcher */}
       <button
         type="button"
+        ref={launcherRef}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="assistant-panel"
@@ -123,7 +132,11 @@ export function ChatWidget() {
       <div
         id="assistant-panel"
         hidden={!open}
-        className="fixed bottom-20 right-5 z-[70] flex w-[min(92vw,380px)] flex-col overflow-hidden rounded-[20px] border border-line bg-card shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7)]"
+        /* The cap belongs on the panel, not just on the message list: bounding only
+           the list let header, note and form push the whole thing past the top of a
+           short viewport, and at 740x360 the title was clipped 48px off-screen.
+           6.5rem clears the launcher offset below plus a margin above. */
+        className="fixed bottom-20 right-5 z-[70] flex max-h-[calc(100dvh-6.5rem)] w-[min(92vw,380px)] flex-col overflow-hidden rounded-[20px] border border-line bg-card shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7)]"
       >
         <div className="flex items-baseline justify-between border-b border-line px-5 py-4">
           <p className="font-display text-lg text-ink">{chat.panelTitle}</p>
@@ -133,7 +146,7 @@ export function ChatWidget() {
         <div
           ref={listRef}
           aria-live="polite"
-          className="flex max-h-[46vh] min-h-[180px] flex-col gap-3 overflow-y-auto px-5 py-4"
+          className="flex max-h-[46vh] min-h-0 flex-col gap-3 overflow-y-auto px-5 py-4"
         >
           {msgs.length === 0 && !error ? (
             <div>
