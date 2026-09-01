@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-card: var(--card);
+}
+
+/* Velorah-style. Near-black blue ground, warm off-white ink; colour arrives
+   through gradient skies and aurora washes, not tokens. Soft geometry: pill
+   buttons, 20px cards. One theme, locked dark. */
+:root {
+  --bg: #08080d;
+  --ink: #ece9e3;
+  --ink-dim: #a8a6a1;
+  --ink-faint: #6f6e72;
+  --line: rgba(255, 255, 255, 0.12);
+  --card: #101017;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #f2c9a0;
+  color: #08080d;
+}
+
+/* Dawn sky for the hero: deep blue up top, grading to peach at the horizon,
+   then the dark ground. Pure CSS, needs no photograph. */
+.sky {
+  background:
+    radial-gradient(120% 80% at 50% 4%, rgba(84, 120, 196, 0.62), transparent 58%),
+    radial-gradient(90% 60% at 26% 48%, rgba(196, 166, 214, 0.46), transparent 72%),
+    radial-gradient(130% 66% at 72% 66%, rgba(248, 196, 150, 0.6), transparent 64%),
+    linear-gradient(180deg, #0a1438 0%, #2f3060 30%, #8a5f83 52%, #e0a074 70%, #b87a5c 80%, #1a1420 92%, #08080d 100%);
+}
+
+/* Night wash for a project panel. */
+.night {
+  background:
+    radial-gradient(80% 60% at 28% 18%, rgba(96, 116, 190, 0.42), transparent 62%),
+    radial-gradient(70% 60% at 76% 82%, rgba(156, 126, 206, 0.36), transparent 66%),
+    linear-gradient(180deg, #0c0c1c 0%, #14141f 60%, #0b0b12 100%);
+}
+
+/* Soft cloud band on the horizon. */
+.clouds {
+  background:
+    radial-gradient(60% 42% at 18% 62%, rgba(255, 240, 235, 0.34), transparent 70%),
+    radial-gradient(52% 36% at 54% 68%, rgba(255, 235, 228, 0.28), transparent 72%),
+    radial-gradient(66% 46% at 84% 58%, rgba(255, 244, 240, 0.26), transparent 72%);
+  filter: blur(16px);
+}
+
+/* Aurora wash for the closing section. */
+.aurora {
+  background:
+    conic-gradient(from 210deg at 48% 122%, rgba(90, 200, 210, 0.32), rgba(120, 110, 220, 0.3), rgba(240, 150, 90, 0.4), rgba(90, 200, 210, 0.32)),
+    radial-gradient(58% 48% at 50% 120%, rgba(255, 190, 130, 0.55), transparent 70%),
+    linear-gradient(180deg, #08080d 0%, #12121f 42%, #1a1622 100%);
+}
+
+/* Aurora wisp, used small on a section edge. */
+.wisp {
+  background:
+    radial-gradient(60% 60% at 30% 50%, rgba(120, 110, 220, 0.5), transparent 70%),
+    radial-gradient(50% 50% at 55% 60%, rgba(90, 200, 210, 0.35), transparent 72%);
+  filter: blur(40px);
+}
+
+/* Frosted pill. Solid fallback where the platform dims transparency. */
+.glass {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: rgba(28, 28, 38, 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Film grain. Fixed so it never repaints on scroll. */
+.grain-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

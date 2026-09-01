@@ -1,0 +1,19 @@
+# Secrets. .env.local holds the Gemini API key: never commit it.
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# OS / editor noise
+.DS_Store
+*.log
