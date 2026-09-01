@@ -386,6 +386,8 @@ export const chat = {
   panelTitle: "Ask about Soumyadip",
   emptyState: "Ask about his projects, stack, experience, or availability.",
   /* The suggested question buttons. */
+  /* Shown in small text above the input. Visitors should know chats are kept. */
+  privacyNote: "Chats are saved so Soumyadip can see what people ask.",
   starters: [
     "What has he built?",
     "What is his tech stack?",

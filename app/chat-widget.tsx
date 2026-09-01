@@ -39,6 +39,8 @@ export function ChatWidget() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* One id per page load, so the notifications for a visit can be grouped. */
+  const sessionRef = useRef<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +64,11 @@ export function ChatWidget() {
     const q = raw.trim();
     if (!q || busy) return;
 
+    if (!sessionRef.current) {
+      sessionRef.current =
+        globalThis.crypto?.randomUUID?.() ?? String(Date.now()) + Math.random().toString(16).slice(2);
+    }
+
     const next: Msg[] = [...msgs, { role: "user", text: q }];
     setMsgs(next);
     setInput("");
@@ -72,7 +79,7 @@ export function ChatWidget() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, session: sessionRef.current }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Something went wrong.");
@@ -149,6 +156,8 @@ export function ChatWidget() {
           {busy ? <p className="text-sm text-ink-faint">Thinking...</p> : null}
           {error ? <p className="text-sm text-ink-faint">{error}</p> : null}
         </div>
+
+        <p className="px-5 pb-1 text-[10px] leading-snug text-ink-faint">{chat.privacyNote}</p>
 
         <form
           onSubmit={(e) => {

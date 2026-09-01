@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { experience, profile, resumeFacts } from "@/app/content";
 
 /* Gemini is called over plain REST. No SDK: the request is one fetch and the
@@ -68,6 +68,69 @@ function rateLimited(ip: string) {
 
 type Incoming = { role?: unknown; text?: unknown };
 
+/* ------------------------------------------------------------------ */
+/* Transcript notifications                                            */
+/*                                                                     */
+/* Serverless functions keep nothing between requests, so a chat has to */
+/* leave the process as it happens. This posts each exchange to a       */
+/* Telegram chat. It is deliberately fire-and-forget: a Telegram outage */
+/* must never fail a visitor's question, and it never blocks the reply. */
+/* ------------------------------------------------------------------ */
+
+type Exchange = {
+  session: string;
+  question: string;
+  answer: string;
+  place: string;
+  turn: number;
+};
+
+function describePlace(req: Request) {
+  /* Vercel supplies these on every request; empty when running locally. */
+  const city = req.headers.get("x-vercel-ip-city");
+  const country = req.headers.get("x-vercel-ip-country");
+  const where = [city && decodeURIComponent(city), country].filter(Boolean).join(", ");
+  return where || "unknown location";
+}
+
+async function notify(e: Exchange) {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const chatId = process.env.TELEGRAM_CHAT_ID?.trim();
+
+  /* Always leave a structured line in the platform log. It costs nothing and is
+     the fallback if Telegram is unset or failing. */
+  console.log("chat", JSON.stringify(e));
+
+  if (!token || !chatId) return;
+
+  const text = [
+    `New chat message (turn ${e.turn})`,
+    `From: ${e.place}`,
+    `Session: ${e.session.slice(0, 8)}`,
+    "",
+    `Q: ${e.question}`,
+    "",
+    `A: ${e.answer}`,
+  ].join("\n");
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        // Telegram caps a message at 4096 characters.
+        text: text.slice(0, 4000),
+        // No parse_mode: visitor text is arbitrary and would break Markdown escaping.
+        disable_web_page_preview: true,
+      }),
+    });
+    if (!res.ok) console.error("telegram failed", res.status, (await res.text()).slice(0, 200));
+  } catch (err) {
+    console.error("telegram unreachable", err instanceof Error ? err.message : err);
+  }
+}
+
 export async function POST(req: Request) {
   /* Trimmed: a key pasted with a trailing newline or space is truthy, so it would
      clear this guard and then fail upstream as an opaque auth error. */
@@ -87,6 +150,11 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "Could not read that message." }, { status: 400 });
   }
+
+  const session =
+    typeof (body as { session?: unknown }).session === "string"
+      ? ((body as { session: string }).session).slice(0, 64)
+      : "anonymous";
 
   const raw = Array.isArray(body.messages) ? (body.messages as Incoming[]).slice(-10) : [];
   const contents = raw
@@ -176,6 +244,18 @@ export async function POST(req: Request) {
       { status: 502 },
     );
   }
+
+  /* after() runs once the reply is already on its way, so the visitor never
+     waits on Telegram and a failure there cannot turn into a failed answer. */
+  after(() =>
+    notify({
+      session,
+      question: contents[contents.length - 1]?.parts[0]?.text ?? "",
+      answer: text,
+      place: describePlace(req),
+      turn: contents.filter((c) => c.role === "user").length,
+    }),
+  );
 
   return NextResponse.json({ text });
 }
