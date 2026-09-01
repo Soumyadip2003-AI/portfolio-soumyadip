@@ -35,7 +35,9 @@ export const profile = {
 
   github: "https://github.com/Soumyadip2003-AI",
   linkedin: "https://linkedin.com/in/soumyadip1234",
-  website: "https://futuristice.netlify.app",
+  /* Your live portfolio URL. Fill this in after deploying; the chatbot shares it.
+     Leave "" and the chatbot simply does not mention a website. */
+  website: "",
 
   /* Public link to your latest resume. The chatbot hands this out when someone
      asks for your CV. Leave it as "" and the bot points them at your email.
@@ -58,8 +60,9 @@ export const seo = {
   shareTitle: "Soumyadip Sarkar - Software Engineer",
   shareDescription:
     "Full-stack and AI systems, built to hold up in production. Recent work: Nova, an autonomous GPT-5.1 coding agent, and a 10-model clinical ML ensemble.",
-  /* The address the site is deployed at. */
-  siteUrl: "https://futuristice.netlify.app",
+  /* Where this site is deployed. On Vercel the real domain is detected
+     automatically; this is the fallback for other hosts. */
+  siteUrl: "http://localhost:3000",
 };
 
 /* --------------------------------------------------------------------------
@@ -368,7 +371,6 @@ export const footer = {
       items: [
         { label: "GitHub", href: "https://github.com/Soumyadip2003-AI" },
         { label: "LinkedIn", href: "https://linkedin.com/in/soumyadip1234" },
-        { label: "Portfolio", href: "https://futuristice.netlify.app" },
       ],
     },
   ],
@@ -405,7 +407,7 @@ export function resumeFacts(): string {
   return `
 ${profile.fullName} is a ${profile.role.toLowerCase()} based in ${profile.location}.
 Phone: ${profile.phone}. Email: ${profile.email}.
-GitHub: ${profile.github}. LinkedIn: ${profile.linkedin}. Portfolio: ${profile.website}.
+GitHub: ${profile.github}. LinkedIn: ${profile.linkedin}.${profile.website ? ` Portfolio: ${profile.website}.` : ""}
 He is open to software engineering roles and internships.
 
 SUMMARY
