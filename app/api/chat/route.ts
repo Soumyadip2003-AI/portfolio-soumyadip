@@ -100,11 +100,24 @@ type Exchange = {
   turn: number;
 };
 
+/* decodeURIComponent throws a URIError on a malformed percent sequence, and this
+   value arrives in a request header. Unguarded it took down the whole
+   notification: the visitor still got their answer, but the exchange was never
+   logged or sent, which is the worst kind of failure for a feature whose job is
+   to tell you someone was here. */
+function safeDecode(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 function describePlace(req: Request) {
   /* Vercel supplies these on every request; empty when running locally. */
   const city = req.headers.get("x-vercel-ip-city");
   const country = req.headers.get("x-vercel-ip-country");
-  const where = [city && decodeURIComponent(city), country].filter(Boolean).join(", ");
+  const where = [city && safeDecode(city), country].filter(Boolean).join(", ");
   return where || "unknown location";
 }
 
