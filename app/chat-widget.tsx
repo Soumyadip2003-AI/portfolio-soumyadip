@@ -2,34 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import { chat } from "./content";
+import { parseLinks } from "./links";
 
 type Msg = { role: "user" | "model"; text: string };
 
 
 
 /* The answer can carry a resume, demo, or repo URL. Rendered as plain text nobody
-   can click it, so split the string and turn the links into real anchors.
-
-   The trailing punctuation split matters: a sentence ending "...at <url>." would
-   otherwise fold the full stop into the href and 404 on click. */
+   can click it, so turn the links into real anchors. The splitting itself lives in
+   links.ts, where it is tested. */
 function withLinks(text: string) {
-  return text.split(/(https?:\/\/[^\s]+)/g).map((part, i) => {
-    if (!/^https?:\/\//.test(part)) return part;
-    const [, href, tail] = part.match(/^(.*?)([.,;:!?)\]]*)$/s) ?? [, part, ""];
-    return (
+  return parseLinks(text).map((piece, i) =>
+    piece.kind === "text" ? (
+      piece.value
+    ) : (
       <span key={i}>
         <a
-          href={href}
+          href={piece.href}
           target="_blank"
           rel="noreferrer"
           className="break-all underline underline-offset-2 transition-colors hover:text-ink"
         >
-          {href}
+          {piece.href}
         </a>
-        {tail}
+        {piece.tail}
       </span>
-    );
-  });
+    ),
+  );
 }
 
 export function ChatWidget() {
