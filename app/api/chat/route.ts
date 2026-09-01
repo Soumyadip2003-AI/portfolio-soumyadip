@@ -69,7 +69,9 @@ function rateLimited(ip: string) {
 type Incoming = { role?: unknown; text?: unknown };
 
 export async function POST(req: Request) {
-  const key = process.env.GEMINI_API_KEY;
+  /* Trimmed: a key pasted with a trailing newline or space is truthy, so it would
+     clear this guard and then fail upstream as an opaque auth error. */
+  const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) {
     return NextResponse.json({ error: "The assistant is not configured yet." }, { status: 503 });
   }
@@ -133,8 +135,23 @@ export async function POST(req: Request) {
   }
 
   if (!res.ok) {
+    // Read once: the body is needed both for the log and to classify the failure.
+    const detail = await res.text();
     // Logged, not returned: the upstream body can echo request details.
-    console.error("gemini error", res.status, (await res.text()).slice(0, 500));
+    console.error("gemini error", res.status, detail.slice(0, 500));
+
+    /* A bad or revoked key is the one failure an operator can actually fix, so
+       name it instead of hiding it behind the generic message. Gemini reports
+       this as 400 INVALID_ARGUMENT, not 401/403, and 400 is also returned for
+       genuinely malformed requests, so the body is what separates them. */
+    if (res.status === 400 && /api key not valid|api_key_invalid/i.test(detail)) {
+      console.error("gemini auth failed: check GEMINI_API_KEY");
+      return NextResponse.json(
+        { error: "The assistant is not configured correctly." },
+        { status: 503 },
+      );
+    }
+
     const busy = res.status === 503 || res.status === 429;
     return NextResponse.json(
       {
