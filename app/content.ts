@@ -327,6 +327,27 @@ export const hiring = {
     "To grow as a software engineer building production AI systems and reliable full-stack products.",
 };
 
+/* --------------------------------------------------------------------------
+   9c. PERSONAL
+
+   Told to the chatbot only, never shown on the page. Recruiters do ask "what is
+   he like outside work", and this gives the bot something real to answer with.
+
+   Leave any line as "" and the bot simply says it does not have that detail,
+   so a blank is always safe. Write these in your own words.
+   -------------------------------------------------------------------------- */
+
+export const personal = {
+  /* e.g. "Chess, cricket, and building small side projects at night." */
+  hobbies: "",
+  /* e.g. "Blue." */
+  favouriteColour: "",
+  /* e.g. "Biryani, and his mother's fish curry." */
+  favouriteFood: "",
+  /* Anything else worth a smile. Optional. */
+  funFact: "",
+};
+
 /* Told to the chatbot only. Your professional summary. */
 export const summary =
   "Software engineer with hands-on experience designing, developing, testing and debugging full-stack software and REST APIs in Agile and Scrum teams using Python, JavaScript, TypeScript, Java and SQL. He builds React front-ends and Node.js back-end services and owns features end to end through Git-based code reviews, Docker containerization and CI/CD automation on cloud platforms. He actively explores emerging AI/ML and generative AI technologies, backed by strong data structures, algorithms and system design fundamentals.";
@@ -442,7 +463,25 @@ ${list(achievements)}
 
 HIRING AND AVAILABILITY
 ${hiringLines()}
+
+PERSONAL
+${personalLines()}
 `.trim();
+}
+
+/* Same rule as hiring: an empty line is omitted so the assistant says it does
+   not have that detail instead of answering with nothing. */
+function personalLines(): string {
+  const rows: [string, string][] = [
+    ["Hobbies and interests", personal.hobbies],
+    ["Favourite colour", personal.favouriteColour],
+    ["Favourite food", personal.favouriteFood],
+    ["Fun fact", personal.funFact],
+  ];
+  const filled = rows.filter(([, v]) => v.trim());
+  return filled.length
+    ? filled.map(([k, v]) => `- ${k}: ${v}`).join("\n")
+    : "- Nothing recorded. Say you do not have personal details and point at his email.";
 }
 
 /* Anything left blank in `hiring` is dropped rather than sent as an empty value,
