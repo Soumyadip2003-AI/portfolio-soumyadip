@@ -88,9 +88,6 @@ function Eyebrow({ children }: { children: ReactNode }) {
   );
 }
 
-function SubLabel({ children }: { children: ReactNode }) {
-  return <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ink-faint">{children}</p>;
-}
 
 /* ------------------------------------------------------------------ */
 /* sections                                                            */
@@ -112,7 +109,7 @@ function Nav() {
           href="#top"
           className="whitespace-nowrap font-display text-base text-ink sm:text-lg md:text-xl"
         >
-          {profile.wordmark}<sup className="ml-0.5 align-super text-[0.6em]">®</sup>
+          {profile.fullName}<sup className="ml-0.5 align-super text-[0.6em]">®</sup>
         </a>
         <nav className="hidden items-center gap-8 justify-self-center text-sm text-ink-dim md:flex">
           {nav.map((n) => (
@@ -334,9 +331,9 @@ function Metrics() {
         <Reveal>
           <Eyebrow>{metricsSection.eyebrow}</Eyebrow>
           <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.08] tracking-tight text-ink">
-            {metricsSection.headlineLine1}
+            {metricsSection.headline[0]}
             <br />
-            {metricsSection.headlineLine2}
+            {metricsSection.headline[1]}
           </h2>
           <p className="mx-auto mt-6 max-w-[42ch] text-sm leading-relaxed text-ink-dim md:text-base">
             {metricsSection.subtext}
@@ -393,7 +390,7 @@ function About() {
 
         {/* Experience. Add another entry in content.ts and a card appears here. */}
         <Reveal delay={0.08} className="mt-6">
-          <SubLabel>Experience</SubLabel>
+          <Eyebrow>Experience</Eyebrow>
           <div className="mt-4 flex flex-col gap-4">
             {experience.map((job) => (
               <div
@@ -419,7 +416,7 @@ function About() {
         {/* Education + Certifications */}
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <Reveal delay={0.1} className="rounded-[20px] border border-line bg-card p-6 md:p-8">
-            <SubLabel>Education</SubLabel>
+            <Eyebrow>Education</Eyebrow>
             <ul className="mt-4 divide-y divide-line">
               {education.map((e) => (
                 <li key={e.school} className="py-4 first:pt-0 last:pb-0">
@@ -432,7 +429,7 @@ function About() {
           </Reveal>
 
           <Reveal delay={0.12} className="rounded-[20px] border border-line bg-card p-6 md:p-8">
-            <SubLabel>Certifications</SubLabel>
+            <Eyebrow>Certifications</Eyebrow>
             <ul className="mt-4 divide-y divide-line">
               {certifications.map((c) => (
                 <li key={c} className="py-4 text-sm text-ink-dim first:pt-0 last:pb-0">
@@ -480,9 +477,9 @@ function Footer() {
       <div className="mx-auto max-w-[1400px]">
         <div className="grid gap-12 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <p className="font-display text-2xl leading-tight text-ink">
-            {footer.taglineLine1}
+            {footer.tagline[0]}
             <br />
-            {footer.taglineLine2}
+            {footer.tagline[1]}
           </p>
           {footer.columns.map((col) => (
             <div key={col.head}>
@@ -507,7 +504,7 @@ function Footer() {
 
         <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 text-sm text-ink-faint sm:flex-row sm:items-center sm:justify-between">
           <span className="font-display text-base text-ink-dim">
-            {profile.wordmark}<sup className="ml-0.5 text-[0.6em] align-super">®</sup>
+            {profile.fullName}<sup className="ml-0.5 text-[0.6em] align-super">®</sup>
           </span>
           <a href={`mailto:${profile.email}`} className="transition-colors hover:text-ink">
             {profile.email}

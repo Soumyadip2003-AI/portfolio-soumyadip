@@ -57,15 +57,6 @@ body {
     linear-gradient(180deg, #0c0c1c 0%, #14141f 60%, #0b0b12 100%);
 }
 
-/* Soft cloud band on the horizon. */
-.clouds {
-  background:
-    radial-gradient(60% 42% at 18% 62%, rgba(255, 240, 235, 0.34), transparent 70%),
-    radial-gradient(52% 36% at 54% 68%, rgba(255, 235, 228, 0.28), transparent 72%),
-    radial-gradient(66% 46% at 84% 58%, rgba(255, 244, 240, 0.26), transparent 72%);
-  filter: blur(16px);
-}
-
 /* Aurora wash for the closing section. */
 .aurora {
   background:

@@ -25,8 +25,7 @@
    -------------------------------------------------------------------------- */
 
 export const profile = {
-  /* Shown in the top-left corner and in the footer. */
-  wordmark: "Soumyadip Sarkar",
+  /* Shown in the top-left corner, the footer, and used by the chatbot. */
   fullName: "Soumyadip Sarkar",
   role: "Software Engineer",
   location: "Kolkata, India",
@@ -128,7 +127,8 @@ export type Project = {
 
 export const projectsHeading = {
   eyebrow: "Selected work",
-  headline: "Three projects, and the parts that shipped.",
+  /* Avoid hardcoding a count here; it goes stale when you add a card. */
+  headline: "The work, and the parts that shipped.",
 };
 
 export const projects: Project[] = [
@@ -176,8 +176,8 @@ export const projects: Project[] = [
 
 export const metricsSection = {
   eyebrow: "Measured, not claimed",
-  headlineLine1: "Numbers from production.",
-  headlineLine2: "Not from a pitch.",
+  /* Two lines, so the break lands where you want it. */
+  headline: ["Numbers from production.", "Not from a pitch."],
   subtext: "Every figure here traces to a production log or a held-out test set.",
   button: { label: "See the work", href: "#projects" },
 };
@@ -347,8 +347,7 @@ export const contact = {
 
 export const footer = {
   /* The serif line on the left, written as two lines. */
-  taglineLine1: "Where ideas",
-  taglineLine2: "meet delivery.",
+  tagline: ["Where ideas", "meet delivery."],
   columns: [
     {
       head: "Explore",

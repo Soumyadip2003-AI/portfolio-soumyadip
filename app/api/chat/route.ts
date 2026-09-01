@@ -14,7 +14,7 @@ const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODE
 
 /* The resume link and every fact below come from app/content.ts, so editing that
    one file updates the page and this assistant together. They cannot drift. */
-const RESUME_URL = process.env.RESUME_URL || profile.resumeUrl || "";
+const RESUME_URL = profile.resumeUrl;
 const FACTS = resumeFacts();
 const FIRST_NAME = profile.fullName.split(" ")[0];
 const EMPLOYERS = experience.map((j) => j.org).join(", ") || "none listed";
