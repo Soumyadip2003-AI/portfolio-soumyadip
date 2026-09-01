@@ -1,7 +1,7 @@
 # Portfolio, with an assistant that knows the resume
 
 Personal site for **Soumyadip Sarkar**, a software engineer in Kolkata. Built
-with Next.js 15, React 19, Tailwind v4, Motion, and the AI .
+with Next.js 15, React 19, Tailwind v4, Motion, and the Gemini API.
 
 ![The site](docs/preview.jpg)
 
