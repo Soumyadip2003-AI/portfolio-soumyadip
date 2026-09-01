@@ -59,6 +59,15 @@ const hits = new Map<string, { n: number; start: number }>();
 const WINDOW_MS = 60_000;
 const MAX_PER_WINDOW = 12;
 
+/* Every outbound call is bounded by this. Measured live on the deployed site, the
+   same question answered in ~1s, then 37s, then 67s: the upstream stalls
+   occasionally and an unbounded fetch just waits, holding the request open until
+   the platform's function timeout. The visitor's widget sits on "Thinking..." with
+   Send disabled and never recovers, so failing fast beats answering eventually.
+   ponytail: one flat budget for the whole call, per-phase budgets if the retry
+   path ever needs more room. */
+const TIMEOUT_MS = 20_000;
+
 function rateLimited(ip: string) {
   const now = Date.now();
 
@@ -144,6 +153,7 @@ async function notify(e: Exchange) {
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
@@ -215,20 +225,16 @@ export async function POST(req: Request) {
     },
   });
 
+  /* One deadline for the whole exchange, shared by every attempt below, so the
+     retries cannot add their budgets together and outlive it. */
+  const deadline = AbortSignal.timeout(TIMEOUT_MS);
+
   let res: Response | null = null;
   /* Retry 503 only. A 429 here is the free tier's per-minute quota (20 requests on
      3.6-flash) and it asks for several seconds of backoff, so an immediate retry
      just spends another unit and makes the throttle worse. */
   for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      res = await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": key },
-        body: payload,
-      });
-    } catch {
-      res = null;
-    }
+    res = await callGemini(key, payload, deadline);
     if (res && res.status !== 503) break;
     if (attempt === 0) await new Promise((r) => setTimeout(r, 700));
   }
@@ -239,7 +245,7 @@ export async function POST(req: Request) {
 
   if (!res.ok) {
     // Read once: the body is needed both for the log and to classify the failure.
-    const detail = await res.text();
+    const detail = await res.text().catch(() => "");
     // Logged, not returned: the upstream body can echo request details.
     console.error("gemini error", res.status, detail.slice(0, 500));
 
@@ -266,7 +272,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const data = await res.json();
+  /* The deadline can fire mid-body, and a 200 is not a promise of JSON. Either
+     way this must not throw: null falls through to the empty-answer path below. */
+  const data = await res.json().catch(() => null);
   const candidate = data?.candidates?.[0];
   const text: string =
     candidate?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("").trim() ?? "";
@@ -279,7 +287,8 @@ export async function POST(req: Request) {
     console.error("gemini empty answer", reason, JSON.stringify(data?.usageMetadata ?? {}));
 
     if (reason !== "MAX_TOKENS" && reason !== "SAFETY") {
-      const retry = await callGemini(key, payload);
+      const retryRes = await callGemini(key, payload, deadline);
+      const retry = retryRes?.ok ? await retryRes.json().catch(() => null) : null;
       const retryText: string =
         retry?.candidates?.[0]?.content?.parts
           ?.map((p: { text?: string }) => p.text ?? "")
@@ -310,17 +319,18 @@ export async function POST(req: Request) {
   return NextResponse.json({ text });
 }
 
-/* One place that knows how to call Gemini, so the retry above cannot drift from
-   the original request. */
-async function callGemini(key: string, payload: string) {
+/* The only place that calls Gemini, so no caller can drift from the request shape
+   or skip the deadline. Returns the raw Response because the 503 retry above has to
+   read the status, and null only when the call never landed: refused, aborted, or
+   out of time. */
+async function callGemini(key: string, payload: string, signal: AbortSignal) {
   try {
-    const res = await fetch(ENDPOINT, {
+    return await fetch(ENDPOINT, {
       method: "POST",
+      signal,
       headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: payload,
     });
-    if (!res.ok) return null;
-    return await res.json();
   } catch {
     return null;
   }

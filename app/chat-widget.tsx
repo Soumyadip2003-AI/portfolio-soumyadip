@@ -76,16 +76,31 @@ export function ChatWidget() {
     setBusy(true);
 
     try {
+      /* busy is what disables Send and blocks the next question, and only the
+         finally below clears it. A request that never settles therefore kills the
+         widget for the rest of the visit, so it is never allowed to hang: the
+         server answers within its own deadline, and this covers the case where the
+         connection itself stalls and no response ever arrives. */
       const res = await fetch("/api/chat", {
         method: "POST",
+        signal: AbortSignal.timeout(25_000),
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages: next, session: sessionRef.current }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Something went wrong.");
+      /* The route always answers JSON, but a platform error page in front of it
+         would not, and parsing that threw the raw SyntaxError into the panel. */
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.text) {
+        setError(data?.error || "The assistant did not reply. Please try again.");
+        return;
+      }
       setMsgs([...next, { role: "model", text: data.text }]);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } catch {
+      /* Only transport failures reach here: an aborted fetch throws a DOMException
+         reading "signal timed out", a dropped connection a TypeError reading
+         "Failed to fetch". Neither is copy to put in front of a visitor, and the
+         server's own wording is handled above, where it still has the response. */
+      setError("Could not reach the assistant. Please try again.");
     } finally {
       setBusy(false);
     }
