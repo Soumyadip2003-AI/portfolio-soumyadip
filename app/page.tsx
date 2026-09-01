@@ -118,9 +118,39 @@ function Nav() {
             </a>
           ))}
         </nav>
-        <a href={navButton.href} className={`${PILL} shrink-0 justify-self-end !px-5 !py-2.5`}>
-          {navButton.label}
-        </a>
+
+        <div className="flex shrink-0 items-center gap-2 justify-self-end">
+          {/* Phones only: above md the nav above is already visible. <details> is the
+              entire menu. It opens and closes itself, reads as a button to a screen
+              reader, and takes keyboard focus, so no state, no effect and no focus
+              handling has to be written, and it works before hydration. The one
+              thing it will not do is close when a link inside it is followed. */}
+          <details className="relative md:hidden">
+            <summary
+              className={`${PILL} cursor-pointer list-none !px-4 !py-2.5 [&::-webkit-details-marker]:hidden`}
+            >
+              Menu
+            </summary>
+            <nav
+              onClick={(e) => e.currentTarget.closest("details")?.removeAttribute("open")}
+              className="absolute right-0 top-full mt-2 flex min-w-[10rem] flex-col overflow-hidden rounded-[14px] border border-line bg-card"
+            >
+              {nav.map((n) => (
+                <a
+                  key={n.href}
+                  href={n.href}
+                  className="px-5 py-3 text-sm text-ink-dim transition-colors hover:text-ink"
+                >
+                  {n.label}
+                </a>
+              ))}
+            </nav>
+          </details>
+
+          <a href={navButton.href} className={`${PILL} shrink-0 !px-5 !py-2.5`}>
+            {navButton.label}
+          </a>
+        </div>
       </div>
     </header>
   );
