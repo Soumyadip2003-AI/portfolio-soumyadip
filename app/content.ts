@@ -87,10 +87,10 @@ export const navButton = { label: "Get in touch", href: "#contact" };
 
 export const hero = {
   /* The big headline. Keep it short; it is set very large. */
-  headline: "Where ideas become systems that last.",
+  headline: "I build AI systems that don't fall over.",
   /* The paragraph underneath. Two sentences works best. */
   subtext:
-    "I am Soumyadip Sarkar, a software engineer in Kolkata. I build full-stack products and AI systems, then make them reliable enough to stop thinking about.",
+    "Full-stack engineer from Kolkata. My last agent went from failing 15% of the time to under 1%, and most of that work was in the error recovery, not the model.",
   primaryButton: { label: "See the work", href: "#projects" },
   secondaryButton: { label: "Get in touch", href: "#contact" },
   /* Background video, from the public folder. */
@@ -223,9 +223,9 @@ export const skills = [
 
 export const about = {
   eyebrow: "About",
-  headline: "Software engineer, based in Kolkata.",
+  headline: "I ship things, then I make them reliable.",
   intro:
-    "I build full-stack software and AI systems, and I own features end to end, from API to UI, through code review, Docker, and CI/CD. Most of my recent work is on LLM agents and machine-learning pipelines.",
+    "I am Soumyadip, a software engineer from Kolkata, currently doing my MCA at IEM. I build full-stack systems and AI agents: most recently Nova, an autonomous GPT-5.1 coding agent where I brought the failure rate from about 15% to under 1%, and a 10-model clinical ML ensemble that hit 95.11% accuracy. I am looking for SDE roles where I can own features end to end.",
 
   /* The four boxes a recruiter reads first. */
   quickFacts: [
