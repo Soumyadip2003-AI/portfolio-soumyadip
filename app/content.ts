@@ -406,9 +406,6 @@ export const chat = {
   launcherOpen: "Ask about me",
   launcherClose: "Close",
   panelTitle: "Ask about Soumyadip",
-  /* The opening message, shown before anyone has typed anything. */
-  greeting:
-    "Hello! I am the assistant on Soumyadip Sarkar's portfolio site. How can I help you today regarding his background, projects, or experience?",
   emptyState: "Ask about his projects, stack, experience, or availability.",
   /* The suggested question buttons. */
   /* Shown in small text above the input. Visitors should know chats are kept. */

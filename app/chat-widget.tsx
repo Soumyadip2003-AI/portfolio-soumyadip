@@ -122,8 +122,9 @@ export function ChatWidget() {
         >
           {msgs.length === 0 && !error ? (
             <div>
-              <p className="text-sm leading-relaxed text-ink">{chat.greeting}</p>
-              <p className="mt-3 text-sm leading-relaxed text-ink-dim">{chat.emptyState}</p>
+              <p className="text-sm leading-relaxed text-ink-dim">
+                {chat.emptyState}
+              </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {chat.starters.map((s) => (
                   <button
