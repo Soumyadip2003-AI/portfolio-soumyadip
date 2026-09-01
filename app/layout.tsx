@@ -16,8 +16,15 @@ const sans = Inter({
   display: "swap",
 });
 
+/* Link previews resolve the OG image against this origin, so a wrong value means
+   every shared link shows a broken card. Vercel supplies the real production
+   domain at build time; seo.siteUrl is the fallback for other hosts and local. */
+const origin = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : seo.siteUrl;
+
 export const metadata: Metadata = {
-  metadataBase: new URL(seo.siteUrl),
+  metadataBase: new URL(origin),
   title: seo.title,
   description: seo.description,
   openGraph: {

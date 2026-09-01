@@ -359,11 +359,9 @@ export const footer = {
     },
     {
       head: "Projects",
-      items: [
-        { label: "Nova", href: "https://nova-five-black.vercel.app" },
-        { label: "Stroke Risk", href: "https://stroke-prediction-system-ai-ml-xshe.vercel.app" },
-        { label: "SortLab", href: "https://sort-visualizer-1-gwic.onrender.com" },
-      ],
+      /* Derived from `projects` above, so adding a card cannot leave the footer
+         silently out of date. */
+      items: projects.map((p) => ({ label: p.name, href: p.demo })),
     },
     {
       head: "Elsewhere",
