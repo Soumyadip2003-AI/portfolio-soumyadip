@@ -57,6 +57,17 @@ const MAX_PER_WINDOW = 12;
 
 function rateLimited(ip: string) {
   const now = Date.now();
+
+  /* An entry is only ever replaced when that same IP comes back, so without a
+     sweep the map grows by one per unique visitor and never shrinks. Pruning
+     opportunistically keeps it bounded without needing a timer, which a
+     serverless instance has no lifecycle to hang one on. */
+  if (hits.size > 500) {
+    for (const [k, v] of hits) {
+      if (now - v.start > WINDOW_MS) hits.delete(k);
+    }
+  }
+
   const entry = hits.get(ip);
   if (!entry || now - entry.start > WINDOW_MS) {
     hits.set(ip, { n: 1, start: now });
@@ -160,6 +171,13 @@ export async function POST(req: Request) {
   const contents = raw
     .filter((m) => (m?.role === "user" || m?.role === "model") && typeof m.text === "string" && m.text.trim())
     .map((m) => ({ role: m.role as string, parts: [{ text: (m.text as string).slice(0, 1000) }] }));
+
+  /* Gemini refuses a request whose final turn is the model's. The widget always
+     ends with the visitor's question, but this endpoint is public, so normalise
+     the shape here rather than forward it and report a misleading 502. */
+  while (contents.length && contents[contents.length - 1].role !== "user") {
+    contents.pop();
+  }
 
   if (!contents.length) {
     return NextResponse.json({ error: "Could not read that message." }, { status: 400 });
