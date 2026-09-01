@@ -42,7 +42,7 @@ export const profile = {
   /* Public link to your latest resume. The chatbot hands this out when someone
      asks for your CV. Leave it as "" and the bot points them at your email.
      Make sure the file is shared as "Anyone with the link". */
-  resumeUrl: "https://drive.google.com/file/d/1txKmVFoTmG9-dtJ-a2ciplHfMOoXFDkz/view?usp=sharing",
+  resumeUrl: "https://drive.google.com/file/d/1JPq59Y0u8hZgeLR_6jps7_9SrpCvl2Hp/view?usp=sharing",
 
   /* Shown in the very bottom bar of the footer. */
   footerNote: "Kolkata, India. 2026.",
