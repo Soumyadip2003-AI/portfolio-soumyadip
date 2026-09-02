@@ -55,11 +55,11 @@ export const profile = {
 export const seo = {
   title: "Soumyadip Sarkar - Software Engineer",
   description:
-    "Soumyadip Sarkar is a software engineer in Kolkata building full-stack software and AI systems, from an autonomous GPT-5.1 coding agent to a 10-model clinical ML ensemble.",
+    "Soumyadip Sarkar is a software engineer in Kolkata building full-stack software and AI systems, from an autonomous GPT-5.1 coding agent to a calibrated clinical risk model.",
   /* Used when the link is pasted into Slack, WhatsApp, LinkedIn, etc. */
   shareTitle: "Soumyadip Sarkar - Software Engineer",
   shareDescription:
-    "Full-stack and AI systems, built to hold up in production. Recent work: Nova, an autonomous GPT-5.1 coding agent, and a 10-model clinical ML ensemble.",
+    "Full-stack and AI systems, built to hold up in production. Recent work: Nova, an autonomous GPT-5.1 coding agent, and NeuroPredict, a calibrated clinical risk model.",
   /* Where this site is deployed. On Vercel the real domain is detected
      automatically; this is the fallback for other hosts. */
   siteUrl: "https://portfolio-soumyadip.vercel.app",
@@ -148,15 +148,15 @@ export const projects: Project[] = [
     fallbackTint: "sky",
   },
   {
-    name: "Stroke Risk Prediction System",
-    tag: "Clinical ML ensemble, team of 5",
+    name: "NeuroPredict",
+    tag: "Calibrated clinical risk model, team of 5",
     period: "2023 to 2025",
-    body: "Led the training and evaluation pipeline for a 10-model ensemble (XGBoost, LightGBM, Random Forest, SVM, MLP) with OOP-structured scikit-learn pipelines. Reached 95.11% accuracy and an F1 of 0.95 on held-out clinical data.",
-    facets: ["10-model ensemble", "95.11% accuracy", "F1 of 0.95", "Team of 5"],
+    body: "A React and Flask stroke risk screener built on one calibrated logistic regression over 21 features. The model it replaced scored 95% accuracy by answering 'no stroke' for everyone on a 4.87% positive class, catching none of them; balanced class weights and a decision threshold fitted out-of-fold at 0.0402 took it to a held-out ROC-AUC of 0.84 and 84% of strokes caught. Sigmoid calibration closed the gap between the displayed percentage and the real rate from 37 points to under one.",
+    facets: ["84% of strokes caught", "ROC-AUC 0.84", "Calibrated to 0.84 pts", "Team of 5"],
     demo: "https://final-2026-vert.vercel.app",
     repo: "https://github.com/Soumyadip2003-AI/stroke-prediction-system-ai-ml",
     image: "/stroke.jpg",
-    imageFocus: "top",
+    imageFocus: "center",
     fallbackTint: "aurora",
   },
   {
@@ -189,7 +189,7 @@ export const metricsSection = {
 export const metrics = [
   { value: "<1%", label: "Agent failure rate on Nova" },
   { value: "<180ms", label: "p95 latency, core flows" },
-  { value: "95.11%", label: "Clinical ensemble accuracy" },
+  { value: "84%", label: "Strokes caught, up from none" },
   { value: "<24h", label: "Production issue turnaround" },
 ];
 
@@ -225,7 +225,7 @@ export const about = {
   eyebrow: "About",
   headline: "I ship things, then I make them reliable.",
   intro:
-    "I am Soumyadip, a software engineer from Kolkata, currently doing my MCA at IEM. I build full-stack systems and AI agents: most recently Nova, an autonomous GPT-5.1 coding agent where I brought the failure rate from about 15% to under 1%, and a 10-model clinical ML ensemble that hit 95.11% accuracy. I am looking for SDE roles where I can own features end to end.",
+    "I am Soumyadip, a software engineer from Kolkata, currently doing my MCA at IEM. I build full-stack systems and AI agents: most recently Nova, an autonomous GPT-5.1 coding agent where I brought the failure rate from about 15% to under 1%, and NeuroPredict, a clinical risk model I took from catching no strokes at all to catching 84% of them. I am looking for SDE roles where I can own features end to end.",
 
   /* The four boxes a recruiter reads first. */
   quickFacts: [
@@ -272,7 +272,7 @@ export const certifications = [
 /* Told to the chatbot only. Not shown on the page. */
 export const achievements = [
   "Reduced AI-agent code-generation failure rate from about 15 percent to under 1 percent in a production system (Nova), architected end to end.",
-  "Achieved 95.11 percent accuracy with an F1 of 0.95 on a 10-model clinical ML ensemble while coordinating a 5-member engineering team.",
+  "Rebuilt a stroke risk model that was scoring 95 percent accuracy while catching none of the strokes, reaching a held-out ROC-AUC of 0.84 and 84 percent recall, while coordinating a 5-member engineering team.",
   "Maintained a 9.02 out of 10 CGPA in his BCA while shipping full-stack and AI/ML projects, and earned 3 AI/ML certifications from Google and Oracle.",
 ];
 
@@ -321,7 +321,7 @@ export const hiring = {
 
   /* Your pitch, in your own words. */
   strengths:
-    "He ships measurable results: he cut an AI agent's failure rate from about 15 percent to under 1 percent, and reached 95.11 percent accuracy on a clinical ML ensemble. He owns features end to end and backs his work with tests and CI.",
+    "He ships measurable results: he cut an AI agent's failure rate from about 15 percent to under 1 percent, and rebuilt a clinical risk model that caught no strokes into one that catches 84 percent of them. He owns features end to end and backs his work with tests and CI.",
 
   careerGoal:
     "To grow as a software engineer building production AI systems and reliable full-stack products.",
