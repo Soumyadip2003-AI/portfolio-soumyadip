@@ -103,6 +103,12 @@ function Nav() {
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 80));
 
+  /* "change" only fires on a later scroll, so landing already scrolled left the
+     bar transparent over the content: a shared /#projects link, a reload with the
+     position restored, or any in-page anchor followed before hydration. Read the
+     position once on mount instead of waiting to be told about it. */
+  useEffect(() => setScrolled(scrollY.get() > 80), [scrollY]);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -342,11 +348,13 @@ function Skills() {
 
         <dl className="mt-14 md:mt-20">
           {skills.map((g, i) => (
-            <Reveal key={g.label} delay={i * 0.04}>
-              <div className="grid gap-1.5 border-t border-line py-5 md:grid-cols-[200px_1fr] md:gap-8 md:py-6">
-                <dt className="text-xs uppercase tracking-[0.2em] text-ink-faint">{g.label}</dt>
-                <dd className="text-sm text-ink-dim md:text-base">{g.items}</dd>
-              </div>
+            <Reveal
+              key={g.label}
+              delay={i * 0.04}
+              className="grid gap-1.5 border-t border-line py-5 md:grid-cols-[200px_1fr] md:gap-8 md:py-6"
+            >
+              <dt className="text-xs uppercase tracking-[0.2em] text-ink-faint">{g.label}</dt>
+              <dd className="text-sm text-ink-dim md:text-base">{g.items}</dd>
             </Reveal>
           ))}
         </dl>
@@ -395,10 +403,8 @@ function Metrics() {
         <dl className="mt-14 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
           {metrics.map((m, i) => (
             <Reveal key={m.label} delay={i * 0.06}>
-              <div>
-                <dt className="font-display text-4xl tracking-tight text-ink md:text-5xl">{m.value}</dt>
-                <dd className="mx-auto mt-2 max-w-[18ch] text-xs text-ink-dim md:text-sm">{m.label}</dd>
-              </div>
+              <dt className="font-display text-4xl tracking-tight text-ink md:text-5xl">{m.value}</dt>
+              <dd className="mx-auto mt-2 max-w-[18ch] text-xs text-ink-dim md:text-sm">{m.label}</dd>
             </Reveal>
           ))}
         </dl>
