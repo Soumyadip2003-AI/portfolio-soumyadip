@@ -546,14 +546,17 @@ function Footer() {
           {footer.columns.map((col) => (
             <div key={col.head}>
               <p className="text-xs uppercase tracking-[0.2em] text-ink-faint">{col.head}</p>
-              <ul className="mt-4 flex flex-col gap-2 text-sm text-ink-dim">
+              <ul className="mt-4 flex flex-col gap-0.5 text-sm text-ink-dim">
                 {col.items.map((it) => (
                   <li key={it.label}>
                     <a
                       href={it.href}
                       target={it.href.startsWith("#") ? undefined : "_blank"}
                       rel={it.href.startsWith("#") ? undefined : "noreferrer"}
-                      className="transition-colors hover:text-ink"
+                      /* inline-block + padding: as inline text these were 17px
+                         tall, under the 24px WCAG 2.2 target minimum, and only
+                         passing on the spacing exception. */
+                      className="inline-block py-1 transition-colors hover:text-ink"
                     >
                       {it.label}
                     </a>
@@ -568,7 +571,10 @@ function Footer() {
           <span className="font-display text-base text-ink-dim">
             {profile.fullName}<sup className="ml-0.5 text-[0.6em] align-super">®</sup>
           </span>
-          <a href={`mailto:${profile.email}`} className="transition-colors hover:text-ink">
+          <a
+            href={`mailto:${profile.email}`}
+            className="inline-block py-1 transition-colors hover:text-ink"
+          >
             {profile.email}
           </a>
           <span>{profile.footerNote}</span>
