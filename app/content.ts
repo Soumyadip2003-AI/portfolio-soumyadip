@@ -151,7 +151,7 @@ export const projects: Project[] = [
     name: "NeuroPredict",
     tag: "Calibrated clinical risk model, team of 5",
     period: "2023 to 2025",
-    body: "A React and Flask stroke risk screener built on one calibrated logistic regression over 21 features. The model it replaced scored 95% accuracy by answering 'no stroke' for everyone on a 4.87% positive class, catching none of them; balanced class weights and a decision threshold fitted out-of-fold at 0.0402 took it to a held-out ROC-AUC of 0.84 and 84% of strokes caught. Sigmoid calibration closed the gap between the displayed percentage and the real rate from 37 points to under one.",
+    body: "A React and Flask stroke risk screener over one calibrated logistic regression. The model it replaced scored 95% accuracy by answering 'no stroke' for everyone, catching none of them. Balanced class weights and a threshold fitted out-of-fold took it to a held-out ROC-AUC of 0.84 and 84% of strokes caught.",
     facets: ["84% of strokes caught", "ROC-AUC 0.84", "Calibrated to 0.84 pts", "Team of 5"],
     demo: "https://final-2026-vert.vercel.app",
     repo: "https://github.com/Soumyadip2003-AI/stroke-prediction-system-ai-ml",
