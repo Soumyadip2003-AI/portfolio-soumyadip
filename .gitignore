@@ -22,3 +22,6 @@ tsconfig.tsbuildinfo
 # OS / editor noise
 .DS_Store
 *.log
+
+# graphify knowledge graph output
+graphify-out/
