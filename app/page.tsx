@@ -170,7 +170,24 @@ function Hero() {
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "-12%"]);
 
   useEffect(() => {
-    if (reduce) videoRef.current?.pause();
+    const video = videoRef.current;
+    if (!video) return;
+
+    /* Browsers pause this video on their own: backgrounded tab, iOS Low Power
+       Mode, memory pressure, offscreen on some phones. autoplay only ever fires
+       once, so without this it stays stopped. Put it back in the right state. */
+    const sync = () => {
+      if (reduce || document.hidden) video.pause();
+      else void video.play().catch(() => {});
+    };
+
+    sync();
+    video.addEventListener("pause", sync);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      video.removeEventListener("pause", sync);
+      document.removeEventListener("visibilitychange", sync);
+    };
   }, [reduce]);
 
   return (
