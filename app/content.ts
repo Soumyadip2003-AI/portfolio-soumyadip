@@ -153,7 +153,7 @@ export const projects: Project[] = [
     period: "2023 to 2025",
     body: "Led the training and evaluation pipeline for a 10-model ensemble (XGBoost, LightGBM, Random Forest, SVM, MLP) with OOP-structured scikit-learn pipelines. Reached 95.11% accuracy and an F1 of 0.95 on held-out clinical data.",
     facets: ["10-model ensemble", "95.11% accuracy", "F1 of 0.95", "Team of 5"],
-    demo: "https://stroke-prediction-system-ai-ml-xshe.vercel.app",
+    demo: "https://final-2026-vert.vercel.app",
     repo: "https://github.com/Soumyadip2003-AI/stroke-prediction-system-ai-ml",
     image: "/stroke.jpg",
     imageFocus: "top",
