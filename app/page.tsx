@@ -85,7 +85,7 @@ const PILL =
   "glass inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm text-ink transition-[transform,background-color] duration-200 hover:bg-white/12 active:scale-[0.98]";
 
 const PILL_GHOST =
-  "inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm text-ink/80 transition-colors duration-200 hover:text-ink hover:border-white/45";
+  "inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm text-ink/90 transition-colors duration-200 hover:text-ink hover:border-white/45";
 
 function Eyebrow({ children }: { children: ReactNode }) {
   return (
@@ -214,8 +214,12 @@ function Hero() {
         aria-hidden="true"
       />
 
-      {/* Light scrims: a touch of top shade for the nav, and a base fade into the page. */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg/35 via-transparent to-bg/55" />
+      {/* Scrims: shade for the nav, a floor under the copy, and a base fade into the
+          page. The middle stop used to be transparent, which assumed the video was
+          dark behind the text. It is not: the sunset horizon is the brightest band
+          in the clip and it lands exactly on the subtext and buttons, measuring
+          1.4:1 there on a phone. Peak the scrim where the copy sits instead. */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg/45 via-bg/60 to-bg/75" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[28%] bg-gradient-to-b from-transparent to-bg" />
 
       <motion.div
