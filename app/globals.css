@@ -175,7 +175,7 @@ html[data-chaos="broken"] button[aria-controls="assistant-panel"] {
 /* ...and knocked out of place. Movement only for visitors who allow it. */
 @media (prefers-reduced-motion: no-preference) {
   html[data-chaos] :is(#top h1, #top h1 + p, #top h1 ~ div, header > div, main > section:not(#top)) {
-    transition: transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 1.1s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   html[data-chaos="broken"] #top h1 { transform: translate(-22px, 26px) rotate(-3deg); }
   html[data-chaos="broken"] #top h1 + p { transform: translate(34px, 8px) rotate(2deg); }
@@ -186,8 +186,8 @@ html[data-chaos="broken"] button[aria-controls="assistant-panel"] {
 
   /* 3. Healing: styles return at once, then each piece springs back in turn. */
   html[data-chaos="healing"] header > div { transition-delay: 0s; }
-  html[data-chaos="healing"] #top h1 { transition-delay: 0.08s; }
-  html[data-chaos="healing"] #top h1 + p { transition-delay: 0.18s; }
-  html[data-chaos="healing"] #top h1 ~ div { transition-delay: 0.28s; }
-  html[data-chaos="healing"] main > section:not(#top) { transition-delay: 0.36s; }
+  html[data-chaos="healing"] #top h1 { transition-delay: 0.2s; }
+  html[data-chaos="healing"] #top h1 + p { transition-delay: 0.45s; }
+  html[data-chaos="healing"] #top h1 ~ div { transition-delay: 0.7s; }
+  html[data-chaos="healing"] main > section:not(#top) { transition-delay: 0.9s; }
 }

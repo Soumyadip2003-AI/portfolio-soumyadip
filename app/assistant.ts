@@ -23,8 +23,8 @@ export const chaos = {
   },
 };
 
-/* What chaos does to a request: 3G-like latency, then the API is unreachable. */
-const CHAOS_LATENCY_MS = 150;
+/* What chaos does to a request: 700 ms of latency, then the API is unreachable. */
+const CHAOS_LATENCY_MS = 700;
 
 /* ---- Asking ------------------------------------------------------------- */
 

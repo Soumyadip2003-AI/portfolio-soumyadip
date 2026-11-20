@@ -13,9 +13,9 @@ import { breakIt } from "./content";
 type Phase = "idle" | "running" | "recovered" | "restored";
 const AUTO_RESTORE_MS = 5000;
 /* The look of the page, read by the html[data-chaos] rules in globals.css. */
-const BREAKING_MS = 600;
-const MIN_BROKEN_MS = 1800;
-const HEALING_MS = 1100;
+const BREAKING_MS = 1200;
+const MIN_BROKEN_MS = 4000;
+const HEALING_MS = 2000;
 
 type Look = "breaking" | "broken" | "healing";
 function setLook(look?: Look) {
@@ -75,7 +75,7 @@ export function BreakIt() {
     chaos.set(true);
     setLook("breaking");
     add("chaos: chatbot API cut (503)");
-    add("chaos: requests slowed to 3G latency");
+    add("chaos: requests slowed by 700 ms");
     const broken = sleep(BREAKING_MS).then(() => {
       if (!current()) return;
       setLook("broken");
