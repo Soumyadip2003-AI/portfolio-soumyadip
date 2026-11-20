@@ -105,7 +105,7 @@ export const breakIt = {
   prompt: "Don't take my word for it.",
   button: "Break this site",
   chaosNote: "The chatbot's API is cut and its requests are slowed to 3G latency.",
-  footnote: "Real failures, injected into this page's own requests. They switch off 5 s after recovery.",
+  footnote: "The API failures are real, injected into this page's own requests; the broken look is the page stripping its own styles. Chaos switches off 5 s after recovery.",
   /* The question the demo sends through the broken assistant. */
   probeQuestion: "Which projects has he built?",
 };

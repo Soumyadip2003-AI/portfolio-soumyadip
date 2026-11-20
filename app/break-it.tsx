@@ -12,6 +12,17 @@ import { breakIt } from "./content";
 
 type Phase = "idle" | "running" | "recovered" | "restored";
 const AUTO_RESTORE_MS = 5000;
+/* The look of the page, read by the html[data-chaos] rules in globals.css. */
+const BREAKING_MS = 600;
+const MIN_BROKEN_MS = 1800;
+const HEALING_MS = 1100;
+
+type Look = "breaking" | "broken" | "healing";
+function setLook(look?: Look) {
+  if (look) document.documentElement.dataset.chaos = look;
+  else delete document.documentElement.dataset.chaos;
+}
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function useChaos() {
   return useSyncExternalStore(chaos.subscribe, chaos.get, () => false);
@@ -24,6 +35,9 @@ export function BreakIt() {
   const [recoveredIn, setRecoveredIn] = useState(0);
   const chaosOn = useChaos();
   const start = useRef(0);
+  /* Each run gets a number, so a run that was closed or restarted stops
+     changing the page's look. */
+  const runId = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [mounted, setMounted] = useState(false);
 
@@ -32,6 +46,7 @@ export function BreakIt() {
     return () => {
       clearTimeout(timer.current);
       chaos.set(false);
+      setLook();
     };
   }, []);
 
@@ -40,6 +55,8 @@ export function BreakIt() {
 
   function restore() {
     clearTimeout(timer.current);
+    runId.current++;
+    setLook();
     if (!chaos.get()) return;
     chaos.set(false);
     add("chaos off: site back to normal");
@@ -49,17 +66,36 @@ export function BreakIt() {
   async function run() {
     if (phase === "running") return;
     clearTimeout(timer.current);
+    const id = ++runId.current;
+    const current = () => runId.current === id;
     start.current = performance.now();
     setLines([]);
     setOpen(true);
     setPhase("running");
     chaos.set(true);
+    setLook("breaking");
     add("chaos: chatbot API cut (503)");
     add("chaos: requests slowed to 3G latency");
+    const broken = sleep(BREAKING_MS).then(() => {
+      if (!current()) return;
+      setLook("broken");
+      add("chaos: page styles stripped, layout knocked loose");
+    });
     try {
       const answer = await askAssistant([{ role: "user", text: breakIt.probeQuestion }], "chaos-demo", add);
+      if (!current()) return;
+      add(`ask: answered from ${answer.sources?.[0] ?? "saved facts"}, no error page`);
+      await broken;
+      /* Long enough to see the broken page, however fast the API recovered. */
+      await sleep(Math.max(0, start.current + BREAKING_MS + MIN_BROKEN_MS - performance.now()));
+      if (!current()) return;
+      setLook("healing");
+      add("heal: styles restored, layout settling back");
+      await sleep(HEALING_MS);
+      if (!current()) return;
+      setLook();
       const ms = performance.now() - start.current;
-      add(`recovered. Answered from ${answer.sources?.[0] ?? "saved facts"}, no error page.`);
+      add("recovered. The site is whole again.");
       setRecoveredIn(ms);
       setPhase("recovered");
       timer.current = setTimeout(restore, AUTO_RESTORE_MS);

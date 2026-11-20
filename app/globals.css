@@ -115,3 +115,79 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* "Break this site". break-it.tsx sets html[data-chaos] to breaking, broken,
+   then healing. The incident log and the chat sit outside header, main and
+   footer, so they keep working while the page itself is broken. */
+
+/* 1. Breaking: the page shakes and the headings split into red and cyan. */
+@keyframes chaos-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -7px 2px; }
+  40% { translate: 6px -3px; }
+  60% { translate: -5px 1px; }
+  80% { translate: 4px 3px; }
+}
+@keyframes chaos-split {
+  0%, 100% { text-shadow: -3px 0 rgba(255, 40, 90, 0.85), 3px 0 rgba(0, 220, 255, 0.85); }
+  50% { text-shadow: 4px 0 rgba(255, 40, 90, 0.85), -4px 0 rgba(0, 220, 255, 0.85); }
+}
+html[data-chaos="breaking"] :is(header, main, footer) {
+  animation: chaos-shake 0.12s linear infinite;
+}
+html[data-chaos="breaking"] :is(h1, h2, h3) {
+  animation: chaos-split 0.16s steps(2) infinite;
+}
+
+/* 2. Broken: the styles are gone and the page reads as raw HTML. */
+html[data-chaos="broken"] body {
+  background: #fff;
+}
+html[data-chaos="broken"] :is(header, main, footer),
+html[data-chaos="broken"] :is(header, main, footer) * {
+  background: #fff !important;
+  color: #111 !important;
+  border-color: #111 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  letter-spacing: normal !important;
+  font-family: "Times New Roman", Times, serif !important;
+}
+html[data-chaos="broken"] :is(header, main, footer) a {
+  color: #0000ee !important;
+  text-decoration: underline !important;
+}
+html[data-chaos="broken"] main :is(video, img) {
+  opacity: 0.12;
+  filter: grayscale(1);
+}
+html[data-chaos="broken"] .grain-layer {
+  display: none;
+}
+/* The chat stays usable while the page is broken, so keep its launcher visible. */
+html[data-chaos="broken"] button[aria-controls="assistant-panel"] {
+  background: #111;
+  color: #fff;
+}
+
+/* ...and knocked out of place. Movement only for visitors who allow it. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-chaos] :is(#top h1, #top h1 + p, #top h1 ~ div, header > div, main > section:not(#top)) {
+    transition: transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  html[data-chaos="broken"] #top h1 { transform: translate(-22px, 26px) rotate(-3deg); }
+  html[data-chaos="broken"] #top h1 + p { transform: translate(34px, 8px) rotate(2deg); }
+  html[data-chaos="broken"] #top h1 ~ div { transform: translateY(36px) rotate(-6deg); }
+  html[data-chaos="broken"] header > div { transform: translateY(-4px) rotate(-0.8deg); }
+  html[data-chaos="broken"] main > section:not(#top):nth-child(odd) { transform: translateX(-28px) rotate(-1.2deg); }
+  html[data-chaos="broken"] main > section:not(#top):nth-child(even) { transform: translateX(24px) rotate(1deg); }
+
+  /* 3. Healing: styles return at once, then each piece springs back in turn. */
+  html[data-chaos="healing"] header > div { transition-delay: 0s; }
+  html[data-chaos="healing"] #top h1 { transition-delay: 0.08s; }
+  html[data-chaos="healing"] #top h1 + p { transition-delay: 0.18s; }
+  html[data-chaos="healing"] #top h1 ~ div { transition-delay: 0.28s; }
+  html[data-chaos="healing"] main > section:not(#top) { transition-delay: 0.36s; }
+}
