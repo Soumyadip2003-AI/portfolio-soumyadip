@@ -306,14 +306,16 @@ function ProjectRow({ p, flip }: { p: Project; flip: boolean }) {
               Live demo
               <span aria-hidden="true">&rarr;</span>
             </a>
-            <a
-              href={p.repo}
-              target="_blank"
-              rel="noreferrer"
-              className={`${PILL_GHOST} w-fit !px-5 !py-2.5`}
-            >
-              View on GitHub
-            </a>
+            {p.repo && (
+              <a
+                href={p.repo}
+                target="_blank"
+                rel="noreferrer"
+                className={`${PILL_GHOST} w-fit !px-5 !py-2.5`}
+              >
+                View on GitHub
+              </a>
+            )}
           </div>
         </div>
 

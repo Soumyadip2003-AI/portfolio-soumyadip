@@ -113,6 +113,7 @@ export const manifesto = ["So it keeps working", "when you look away."];
                 "top" | "center" | "left" | "right" | "bottom"
    fallbackTint the gradient used when image is null: "sky" | "aurora" | "night"
    facets       the small pills. The first one is highlighted.
+   repo         leave "" for a private repository; the GitHub button is hidden
    -------------------------------------------------------------------------- */
 
 export type Project = {
@@ -135,6 +136,19 @@ export const projectsHeading = {
 };
 
 export const projects: Project[] = [
+  {
+    name: "RepoScribe",
+    tag: "AI code review for GitHub projects",
+    period: "Since Oct 2026",
+    body: "Paste any public GitHub repo on the home page and get a score, the top findings and one checked answer, with no account needed. Every file and line the AI cites is checked against the real repo before it becomes a link. 144 browser tests and 343 unit tests run before every release.",
+    facets: ["Try it without signing up", "Checked file references", "Next.js, tRPC, PostgreSQL", "144 browser tests"],
+    demo: "https://reposcribe.dev",
+    /* Private repository: leave "" and the card shows no GitHub button. */
+    repo: "",
+    image: "/reposcribe.jpg",
+    imageFocus: "top",
+    fallbackTint: "sky",
+  },
   {
     name: "Nova",
     tag: "AI-powered code generation platform",
@@ -451,7 +465,7 @@ PROJECTS
 ${projects
   .map(
     (p) =>
-      `- ${p.name}, ${p.tag}, ${p.period}.\n  ${p.body}\n  Highlights: ${p.facets.join(", ")}.\n  Live demo: ${p.demo}\n  Source: ${p.repo}`,
+      `- ${p.name}, ${p.tag}, ${p.period}.\n  ${p.body}\n  Highlights: ${p.facets.join(", ")}.\n  Live demo: ${p.demo}\n  Source: ${p.repo || "private repository"}`,
   )
   .join("\n")}
 
