@@ -19,8 +19,26 @@ const HEALING_MS = 2000;
 
 type Look = "breaking" | "broken" | "healing";
 function setLook(look?: Look) {
+  if (look === "broken") dropToFloor();
   if (look) document.documentElement.dataset.chaos = look;
   else delete document.documentElement.dataset.chaos;
+}
+
+/* Every falling piece on screen lands on the bottom edge of the window, piled a
+   little unevenly, instead of a fixed distance that would carry most of them out
+   of sight. Measured just before the fall, while nothing is moved yet. */
+function dropToFloor() {
+  const floor = window.innerHeight;
+  document.querySelectorAll<HTMLElement>(".chaos-fall").forEach((el, i) => {
+    const box = el.getBoundingClientRect();
+    if (box.bottom < 0 || box.top > floor) return;
+    const pile = 12 + ((i * 37) % 80);
+    /* A spun piece reaches lower than its upright box: half its rotated height. */
+    const spin = (parseFloat(el.style.getPropertyValue("--fall-r")) || 0) * (Math.PI / 180);
+    const reach = (box.width / 2) * Math.abs(Math.sin(spin)) + (box.height / 2) * Math.abs(Math.cos(spin));
+    const centre = box.top + box.height / 2;
+    el.style.setProperty("--fall-y", `${Math.max(0, Math.round(floor - pile - reach - centre))}px`);
+  });
 }
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 

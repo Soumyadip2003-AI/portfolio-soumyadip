@@ -172,22 +172,18 @@ html[data-chaos="broken"] button[aria-controls="assistant-panel"] {
   color: #fff;
 }
 
-/* ...and knocked out of place. Movement only for visitors who allow it. */
+/* ...and everything falls. Movement only for visitors who allow it. Each
+   .chaos-fall piece carries its own drift, drop, spin and delays (fallVars in
+   page.tsx). It falls with gravity (accelerating) and heals with a spring. */
 @media (prefers-reduced-motion: no-preference) {
-  html[data-chaos] :is(#top h1, #top h1 + p, #top h1 ~ div, header > div, main > section:not(#top)) {
-    transition: transform 1.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  html[data-chaos] .chaos-fall,
+  html[data-chaos] main > section:not(#top) {
+    transition: transform 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) var(--heal-d, 0.9s);
   }
-  html[data-chaos="broken"] #top h1 { transform: translate(-22px, 26px) rotate(-3deg); }
-  html[data-chaos="broken"] #top h1 + p { transform: translate(34px, 8px) rotate(2deg); }
-  html[data-chaos="broken"] #top h1 ~ div { transform: translateY(36px) rotate(-6deg); }
-  html[data-chaos="broken"] header > div { transform: translateY(-4px) rotate(-0.8deg); }
+  html[data-chaos="broken"] .chaos-fall {
+    transform: translate(var(--fall-x), var(--fall-y)) rotate(var(--fall-r));
+    transition: transform 1.3s cubic-bezier(0.55, 0, 1, 0.45) var(--fall-d);
+  }
   html[data-chaos="broken"] main > section:not(#top):nth-child(odd) { transform: translateX(-28px) rotate(-1.2deg); }
   html[data-chaos="broken"] main > section:not(#top):nth-child(even) { transform: translateX(24px) rotate(1deg); }
-
-  /* 3. Healing: styles return at once, then each piece springs back in turn. */
-  html[data-chaos="healing"] header > div { transition-delay: 0s; }
-  html[data-chaos="healing"] #top h1 { transition-delay: 0.2s; }
-  html[data-chaos="healing"] #top h1 + p { transition-delay: 0.45s; }
-  html[data-chaos="healing"] #top h1 ~ div { transition-delay: 0.7s; }
-  html[data-chaos="healing"] main > section:not(#top) { transition-delay: 0.9s; }
 }

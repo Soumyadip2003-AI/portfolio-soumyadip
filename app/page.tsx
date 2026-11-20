@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValueEvent,
@@ -103,6 +103,35 @@ function Eyebrow({ children }: { children: ReactNode }) {
 /* sections                                                            */
 /* ------------------------------------------------------------------ */
 
+/* Where each piece lands when "Break this site" knocks it down: drift, drop,
+   spin and timing, read by the .chaos-fall rules in globals.css. Seeded by index,
+   not Math.random, so the server and the browser render the same values. */
+function fallVars(i: number): CSSProperties {
+  const r = (k: number) => {
+    const x = Math.sin((i + 1) * 12.9898 + k * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  return {
+    "--fall-x": `${Math.round((r(1) * 2 - 1) * 140)}px`,
+    "--fall-y": `${Math.round(58 + r(2) * 30)}vh`,
+    "--fall-r": `${Math.round((r(3) * 2 - 1) * 80)}deg`,
+    "--fall-d": `${(r(4) * 0.4).toFixed(2)}s`,
+    "--heal-d": `${(r(5) * 0.6).toFixed(2)}s`,
+  } as CSSProperties;
+}
+
+/* Each word its own piece, so a headline falls apart word by word. */
+function FallWords({ text, seed }: { text: string; seed: number }) {
+  return text.split(" ").map((word, i) => (
+    <Fragment key={i}>
+      {i > 0 ? " " : null}
+      <span className="chaos-fall inline-block" style={fallVars(seed + i)}>
+        {word}
+      </span>
+    </Fragment>
+  ));
+}
+
 /* Recruiter mode lives in the URL (?view=recruiter), so a recruiter can share the
    short version and a reload keeps it. */
 function useRecruiterMode() {
@@ -119,13 +148,14 @@ function useRecruiterMode() {
   return [on, set] as const;
 }
 
-function RecruiterSwitch({ on, onChange, className = "" }: { on: boolean; onChange: (v: boolean) => void; className?: string }) {
+function RecruiterSwitch({ on, onChange, className = "", style }: { on: boolean; onChange: (v: boolean) => void; className?: string; style?: CSSProperties }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={on}
       onClick={() => onChange(!on)}
+      style={style}
       className={`items-center gap-2.5 whitespace-nowrap text-sm text-ink-dim transition-colors hover:text-ink ${className}`}
     >
       {recruiter.switchLabel}
@@ -165,13 +195,14 @@ function Nav({ recruiterOn, setRecruiter }: { recruiterOn: boolean; setRecruiter
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-5 py-5 md:px-10 lg:grid lg:grid-cols-[1fr_auto_1fr]">
         <a
           href="#top"
-          className="whitespace-nowrap font-display text-base text-ink sm:text-lg md:text-xl"
+          className="chaos-fall whitespace-nowrap font-display text-base text-ink sm:text-lg md:text-xl"
+          style={fallVars(1)}
         >
           {profile.fullName}<sup className="ml-0.5 align-super text-[0.6em]">®</sup>
         </a>
         <nav className="hidden items-center gap-8 justify-self-center text-sm text-ink-dim lg:flex">
-          {(recruiterOn ? [] : nav).map((n) => (
-            <a key={n.href} href={n.href} className="transition-colors hover:text-ink">
+          {(recruiterOn ? [] : nav).map((n, i) => (
+            <a key={n.href} href={n.href} className="chaos-fall transition-colors hover:text-ink" style={fallVars(10 + i)}>
               {n.label}
             </a>
           ))}
@@ -183,7 +214,7 @@ function Nav({ recruiterOn, setRecruiter }: { recruiterOn: boolean; setRecruiter
               reader, and takes keyboard focus, so no state, no effect and no focus
               handling has to be written, and it works before hydration. The one
               thing it will not do is close when a link inside it is followed. */}
-          <details className="relative lg:hidden">
+          <details className="chaos-fall relative lg:hidden" style={fallVars(8)}>
             <summary
               className={`${PILL} cursor-pointer list-none !px-4 !py-2.5 [&::-webkit-details-marker]:hidden`}
             >
@@ -210,9 +241,9 @@ function Nav({ recruiterOn, setRecruiter }: { recruiterOn: boolean; setRecruiter
             </nav>
           </details>
 
-          <RecruiterSwitch on={recruiterOn} onChange={setRecruiter} className="mr-3 hidden min-h-11 lg:inline-flex" />
+          <RecruiterSwitch on={recruiterOn} onChange={setRecruiter} className="chaos-fall mr-3 hidden min-h-11 lg:inline-flex" style={fallVars(17)} />
 
-          <a href={navButton.href} className={`${PILL} shrink-0 !px-5 !py-2.5`}>
+          <a href={navButton.href} className={`${PILL} chaos-fall shrink-0 !px-5 !py-2.5`} style={fallVars(18)}>
             {navButton.label}
           </a>
         </div>
@@ -281,17 +312,17 @@ function Hero() {
         className="mx-auto flex min-h-[100dvh] max-w-[1100px] flex-col items-center px-5 pt-28 text-center md:pt-32"
       >
         <h1 className="text-balance font-display text-[clamp(2.9rem,8vw,6rem)] leading-[1.02] tracking-tight text-ink [text-shadow:0_2px_30px_rgba(8,8,13,0.35)]">
-          {hero.headline}
+          <FallWords text={hero.headline} seed={20} />
         </h1>
         <p className="mt-6 max-w-[46ch] text-balance text-base leading-relaxed text-ink/85 md:text-lg [text-shadow:0_1px_16px_rgba(8,8,13,0.4)]">
-          {hero.subtext}
+          <FallWords text={hero.subtext} seed={40} />
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <a href={hero.primaryButton.href} className={PILL}>
+          <a href={hero.primaryButton.href} className={`${PILL} chaos-fall`} style={fallVars(80)}>
             {hero.primaryButton.label}
             <span aria-hidden="true">&rarr;</span>
           </a>
-          <a href={hero.secondaryButton.href} className={PILL_GHOST}>
+          <a href={hero.secondaryButton.href} className={`${PILL_GHOST} chaos-fall`} style={fallVars(81)}>
             {hero.secondaryButton.label}
           </a>
         </div>
