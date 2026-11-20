@@ -98,6 +98,18 @@ export const hero = {
   video: "/hero.mp4",
 };
 
+/* "Break this site", under the hero buttons. It really cuts the chatbot's API and
+   slows its requests, then the page recovers through the same retry and fallback
+   code the chatbot always uses. */
+export const breakIt = {
+  prompt: "Don't take my word for it.",
+  button: "Break this site",
+  chaosNote: "The chatbot's API is cut and its requests are slowed to 3G latency.",
+  footnote: "Real failures, injected into this page's own requests. They switch off 5 s after recovery.",
+  /* The question the demo sends through the broken assistant. */
+  probeQuestion: "Which projects has he built?",
+};
+
 /* --------------------------------------------------------------------------
    5. THE BIG LINE UNDER THE HERO
    Written as two lines so the break lands where you want it.
@@ -485,6 +497,32 @@ export const footer = {
    12. THE AI CHATBOT
    -------------------------------------------------------------------------- */
 
+/* --------------------------------------------------------------------------
+   RECRUITER MODE
+   The one-screen version a recruiter switches on from the top bar. The numbers
+   and projects are picked from the sections above, so they cannot disagree.
+   -------------------------------------------------------------------------- */
+
+export const recruiter = {
+  switchLabel: "Recruiter mode",
+  eyebrow: "The 30-second version",
+  headline: "Software engineer, full-stack and AI.",
+  line: "Kolkata, India. MCA at IEM, 2026 to 2028. Open to SDE roles and internships now.",
+  stack: "TypeScript, Python, Next.js, tRPC, PostgreSQL, LLM agents, Docker",
+  numbers: [
+    { value: "<1%", label: "Agent failure rate on Nova, down from about 15%" },
+    { value: "84%", label: "Strokes caught by NeuroPredict, up from none" },
+    {
+      value: String(openSource.filter((c) => c.status === "Merged").length),
+      label: "Open-source fixes merged into widely used developer tools",
+    },
+  ],
+  /* How many project cards to show, taken from the top of `projects`. */
+  projectCount: 3,
+  outro: "Want the long version?",
+  outroLink: "Turn recruiter mode off",
+};
+
 export const chat = {
   launcherOpen: "Ask about me",
   launcherClose: "Close",
@@ -510,52 +548,57 @@ export const chat = {
    and the page can never fall out of step.
    -------------------------------------------------------------------------- */
 
-export function resumeFacts(): string {
+/* Every fact the assistant may use, under a label it must cite. The label is also
+   what the visitor sees under an answer, and `href` is where that fact lives on the
+   page, so a source chip can take them there. */
+export type FactSource = { label: string; href: string; text: string };
+
+export function factSources(): FactSource[] {
   const list = (items: string[]) => items.map((i) => `- ${i}`).join("\n");
+  const repos = [...new Set(openSource.map((c) => c.repo))];
+  return [
+    {
+      label: "Contact",
+      href: "#contact",
+      text: `${profile.fullName} is a ${profile.role.toLowerCase()} based in ${profile.location}. Phone: ${profile.phone}. Email: ${profile.email}. GitHub: ${profile.github}. LinkedIn: ${profile.linkedin}.${profile.website ? ` Portfolio: ${profile.website}.` : ""} He is open to software engineering roles and internships.`,
+    },
+    { label: "Summary", href: "#about", text: summary },
+    ...experience.map((j) => ({
+      label: `Experience: ${j.org}`,
+      href: "#about",
+      text: `${j.role}, ${j.period}.\n${list(j.points)}`,
+    })),
+    {
+      label: "Education",
+      href: "#about",
+      text: list(education.map((e) => `${e.degree}, ${e.school}. ${e.meta}.`)),
+    },
+    ...projects.map((p) => ({
+      label: `Projects: ${p.name}`,
+      href: "#projects",
+      text: `${p.tag}, ${p.period}. ${p.body} Highlights: ${p.facets.join(", ")}. Live demo: ${p.demo}. Source: ${p.repo || "private repository"}.`,
+    })),
+    ...repos.map((repo) => ({
+      label: `Open source: ${repo}`,
+      href: "#open-source",
+      text: openSource
+        .filter((c) => c.repo === repo)
+        .map((c) => `${c.repo} (${c.stars} stars), ${c.status}: ${c.title}. ${c.summary} Pull request: ${c.url}`)
+        .join("\n"),
+    })),
+    ...skills.map((g) => ({ label: `Skills: ${g.label}`, href: "#skills", text: g.items })),
+    { label: "Certifications", href: "#about", text: list(certifications) },
+    { label: "Achievements", href: "#about", text: list(achievements) },
+    { label: "Hiring and availability", href: "#contact", text: hiringLines() },
+    { label: "Personal", href: "#about", text: personalLines() },
+  ];
+}
 
-  return `
-${profile.fullName} is a ${profile.role.toLowerCase()} based in ${profile.location}.
-Phone: ${profile.phone}. Email: ${profile.email}.
-GitHub: ${profile.github}. LinkedIn: ${profile.linkedin}.${profile.website ? ` Portfolio: ${profile.website}.` : ""}
-He is open to software engineering roles and internships.
-
-SUMMARY
-${summary}
-
-EDUCATION
-${education.map((e) => `- ${e.degree}, ${e.school}. ${e.meta}.`).join("\n")}
-
-EXPERIENCE
-${experience
-  .map((j) => `- ${j.org}. ${j.role}, ${j.period}.\n${j.points.map((p) => `  ${p}`).join("\n")}`)
-  .join("\n")}
-
-PROJECTS
-${projects
-  .map(
-    (p) =>
-      `- ${p.name}, ${p.tag}, ${p.period}.\n  ${p.body}\n  Highlights: ${p.facets.join(", ")}.\n  Live demo: ${p.demo}\n  Source: ${p.repo || "private repository"}`,
-  )
-  .join("\n")}
-
-OPEN SOURCE CONTRIBUTIONS
-${openSource.map((c) => `- ${c.repo} (${c.stars} stars), ${c.status}: ${c.title}.\n  ${c.summary}\n  Pull request: ${c.url}`).join("\n")}
-
-SKILLS
-${skills.map((s) => `- ${s.label}: ${s.items}.`).join("\n")}
-
-CERTIFICATIONS
-${list(certifications)}
-
-ACHIEVEMENTS
-${list(achievements)}
-
-HIRING AND AVAILABILITY
-${hiringLines()}
-
-PERSONAL
-${personalLines()}
-`.trim();
+/* The briefing the chatbot reads: every fact, each under the label it cites. */
+export function resumeFacts(): string {
+  return factSources()
+    .map((f) => `[${f.label}]\n${f.text}`)
+    .join("\n\n");
 }
 
 /* Same rule as hiring: an empty line is omitted so the assistant says it does

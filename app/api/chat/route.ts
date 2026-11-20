@@ -1,5 +1,6 @@
 import { NextResponse, after } from "next/server";
-import { experience, profile, resumeFacts } from "@/app/content";
+import { experience, factSources, profile, resumeFacts } from "@/app/content";
+import { splitSources } from "@/app/resilience";
 
 /* Gemini is called over plain REST. No SDK: the request is one fetch and the
    response is one field deep, so a dependency would not earn its weight. */
@@ -16,6 +17,7 @@ const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODE
    one file updates the page and this assistant together. They cannot drift. */
 const RESUME_URL = profile.resumeUrl;
 const FACTS = resumeFacts();
+const LABELS = factSources().map((f) => f.label);
 const FIRST_NAME = profile.fullName.split(" ")[0];
 const EMPLOYERS = experience.map((j) => j.org).join(", ") || "none listed";
 
@@ -28,6 +30,11 @@ dates, numbers, or projects.
 
 Keep every answer under three sentences. Write plain text, no markdown, no bullet
 characters. Refer to him as ${FIRST_NAME} or he.
+
+End every answer with one last line that starts "Sources:" and lists the labels in
+square brackets below that the answer used, copied exactly and separated by
+semicolons, for example "Sources: Projects: Nova; Skills: Databases". If the answer
+used none of them (a greeting, or a detail you do not have), write "Sources: none".
 
 You may answer light personal questions (hobbies, favourite colour, favourite food)
 when they are listed below, since recruiters ask what someone is like outside work.
@@ -296,7 +303,7 @@ export async function POST(req: Request) {
           .trim() ?? "";
       if (retryText) {
         after(() => notify(buildExchange(req, session, contents, retryText)));
-        return NextResponse.json({ text: retryText });
+        return NextResponse.json(splitSources(retryText, LABELS));
       }
       console.error("gemini empty answer on retry too");
     }
@@ -316,7 +323,9 @@ export async function POST(req: Request) {
      waits on Telegram and a failure there cannot turn into a failed answer. */
   after(() => notify(buildExchange(req, session, contents, text)));
 
-  return NextResponse.json({ text });
+  /* The sources line comes off the visible text, and only labels that exist are
+     returned, so a source chip can never point at something he did not do. */
+  return NextResponse.json(splitSources(text, LABELS));
 }
 
 /* The only place that calls Gemini, so no caller can drift from the request shape

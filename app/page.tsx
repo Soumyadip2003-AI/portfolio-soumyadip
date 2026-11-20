@@ -9,7 +9,9 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
+import { BreakIt } from "./break-it";
 import { ChatWidget } from "./chat-widget";
+import { ProjectStatus } from "./project-status";
 import {
   about,
   certifications,
@@ -28,6 +30,7 @@ import {
   profile,
   projects,
   projectsHeading,
+  recruiter,
   skills,
   skillsHeading,
   type Project,
@@ -100,7 +103,49 @@ function Eyebrow({ children }: { children: ReactNode }) {
 /* sections                                                            */
 /* ------------------------------------------------------------------ */
 
-function Nav() {
+/* Recruiter mode lives in the URL (?view=recruiter), so a recruiter can share the
+   short version and a reload keeps it. */
+function useRecruiterMode() {
+  const [on, setOn] = useState(false);
+  useEffect(() => setOn(new URLSearchParams(window.location.search).get("view") === "recruiter"), []);
+  const set = (next: boolean) => {
+    setOn(next);
+    const url = new URL(window.location.href);
+    if (next) url.searchParams.set("view", "recruiter");
+    else url.searchParams.delete("view");
+    window.history.replaceState(null, "", url);
+    window.scrollTo({ top: 0 });
+  };
+  return [on, set] as const;
+}
+
+function RecruiterSwitch({ on, onChange, className = "" }: { on: boolean; onChange: (v: boolean) => void; className?: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={() => onChange(!on)}
+      className={`items-center gap-2.5 whitespace-nowrap text-sm text-ink-dim transition-colors hover:text-ink ${className}`}
+    >
+      {recruiter.switchLabel}
+      <span
+        aria-hidden="true"
+        className={`relative h-[22px] w-[38px] shrink-0 rounded-full border transition-colors ${
+          on ? "border-transparent bg-ink" : "border-white/30 bg-transparent"
+        }`}
+      >
+        <span
+          className={`absolute top-[2px] h-4 w-4 rounded-full transition-[left,background-color] duration-200 ${
+            on ? "left-[18px] bg-bg" : "left-[2px] bg-ink-dim"
+          }`}
+        />
+      </span>
+    </button>
+  );
+}
+
+function Nav({ recruiterOn, setRecruiter }: { recruiterOn: boolean; setRecruiter: (v: boolean) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 80));
@@ -117,15 +162,15 @@ function Nav() {
         scrolled ? "border-b border-line bg-bg/80 backdrop-blur-md" : ""
       }`}
     >
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-5 py-5 md:grid md:grid-cols-[1fr_auto_1fr] md:px-10">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-5 py-5 md:px-10 lg:grid lg:grid-cols-[1fr_auto_1fr]">
         <a
           href="#top"
           className="whitespace-nowrap font-display text-base text-ink sm:text-lg md:text-xl"
         >
           {profile.fullName}<sup className="ml-0.5 align-super text-[0.6em]">®</sup>
         </a>
-        <nav className="hidden items-center gap-8 justify-self-center text-sm text-ink-dim md:flex">
-          {nav.map((n) => (
+        <nav className="hidden items-center gap-8 justify-self-center text-sm text-ink-dim lg:flex">
+          {(recruiterOn ? [] : nav).map((n) => (
             <a key={n.href} href={n.href} className="transition-colors hover:text-ink">
               {n.label}
             </a>
@@ -133,12 +178,12 @@ function Nav() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 justify-self-end">
-          {/* Phones only: above md the nav above is already visible. <details> is the
+          {/* Below lg only: from lg the nav above is visible. <details> is the
               entire menu. It opens and closes itself, reads as a button to a screen
               reader, and takes keyboard focus, so no state, no effect and no focus
               handling has to be written, and it works before hydration. The one
               thing it will not do is close when a link inside it is followed. */}
-          <details className="relative md:hidden">
+          <details className="relative lg:hidden">
             <summary
               className={`${PILL} cursor-pointer list-none !px-4 !py-2.5 [&::-webkit-details-marker]:hidden`}
             >
@@ -148,7 +193,7 @@ function Nav() {
               onClick={(e) => e.currentTarget.closest("details")?.removeAttribute("open")}
               className="absolute right-0 top-full mt-2 flex min-w-[10rem] flex-col overflow-hidden rounded-[14px] border border-line bg-card"
             >
-              {nav.map((n) => (
+              {(recruiterOn ? [] : nav).map((n) => (
                 <a
                   key={n.href}
                   href={n.href}
@@ -157,8 +202,15 @@ function Nav() {
                   {n.label}
                 </a>
               ))}
+              <RecruiterSwitch
+                on={recruiterOn}
+                onChange={setRecruiter}
+                className="flex justify-between border-t border-line px-5 py-3"
+              />
             </nav>
           </details>
+
+          <RecruiterSwitch on={recruiterOn} onChange={setRecruiter} className="mr-3 hidden min-h-11 lg:inline-flex" />
 
           <a href={navButton.href} className={`${PILL} shrink-0 !px-5 !py-2.5`}>
             {navButton.label}
@@ -243,6 +295,7 @@ function Hero() {
             {hero.secondaryButton.label}
           </a>
         </div>
+        <BreakIt />
       </motion.div>
     </section>
   );
@@ -271,7 +324,7 @@ function ProjectRow({ p, flip }: { p: Project; flip: boolean }) {
             flip ? "xl:order-2" : ""
           }`}
         >
-          <span className="h-7 w-7 rounded-full border border-line" aria-hidden="true" />
+          <ProjectStatus name={p.name} />
           <p className="mt-6 text-xs uppercase tracking-[0.2em] text-ink-faint">{p.period}</p>
           <h3 className="mt-2 font-display text-4xl leading-tight tracking-tight text-ink md:text-5xl">
             {p.name}
@@ -640,20 +693,102 @@ function Footer() {
 
 /* ------------------------------------------------------------------ */
 
+function RecruiterView({ onExit }: { onExit: () => void }) {
+  return (
+    <section aria-label="Recruiter summary" className="px-5 pb-24 pt-32 md:px-10 md:pt-40">
+      <div className="mx-auto max-w-[1200px]">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <Eyebrow>{recruiter.eyebrow}</Eyebrow>
+            <h1 className="mt-5 text-balance font-display text-[clamp(2.75rem,6vw,4.75rem)] leading-[1.02] tracking-tight text-ink">
+              {recruiter.headline}
+            </h1>
+            <p className="mt-5 max-w-[48ch] text-base leading-relaxed text-ink-dim md:text-lg">{recruiter.line}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {profile.resumeUrl ? (
+                <a
+                  href={profile.resumeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-bg transition-transform active:scale-[0.98]"
+                >
+                  View resume
+                </a>
+              ) : null}
+              <a href={`mailto:${profile.email}`} className={PILL_GHOST}>
+                Email me
+              </a>
+              <a href={profile.linkedin} target="_blank" rel="noreferrer" className={PILL_GHOST}>
+                LinkedIn
+              </a>
+            </div>
+            <p className="mt-6 text-sm text-ink-faint">{recruiter.stack}</p>
+          </div>
+          <dl className="self-center">
+            {recruiter.numbers.map((n) => (
+              <div
+                key={n.label}
+                className="grid grid-cols-[96px_1fr] items-baseline gap-5 border-t border-line py-5 last:border-b md:grid-cols-[160px_1fr] md:gap-6 md:py-6"
+              >
+                <dt className="font-display text-5xl leading-none text-ink md:text-6xl">{n.value}</dt>
+                <dd className="text-sm leading-relaxed text-ink-dim md:text-base">{n.label}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <ul className="mt-14 grid gap-4 md:grid-cols-3">
+          {projects.slice(0, recruiter.projectCount).map((p) => (
+            <li key={p.name}>
+              <a
+                href={p.demo}
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-full flex-col gap-1.5 rounded-[20px] border border-line bg-card p-6 transition-colors hover:border-white/30"
+              >
+                <span className="font-display text-3xl text-ink">{p.name}</span>
+                <span className="text-sm text-ink-dim">{p.tag}</span>
+                <span className="mt-3 text-sm text-ink">
+                  Live demo <span aria-hidden="true">&rarr;</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-10 text-sm text-ink-faint">
+          {recruiter.outro}{" "}
+          <button type="button" onClick={onExit} className="text-ink underline underline-offset-4 hover:text-ink-dim">
+            {recruiter.outroLink}
+          </button>{" "}
+          for the full site.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function Page() {
+  const [recruiterOn, setRecruiter] = useRecruiterMode();
   return (
     <>
       <div aria-hidden="true" className="grain-layer" />
-      <Nav />
+      <Nav recruiterOn={recruiterOn} setRecruiter={setRecruiter} />
       <main>
-        <Hero />
-        <Manifesto />
-        <Work />
-        <OpenSource />
-        <Metrics />
-        <Skills />
-        <About />
-        <ContactCTA />
+        {recruiterOn ? (
+          <RecruiterView onExit={() => setRecruiter(false)} />
+        ) : (
+          <>
+            <Hero />
+            <Manifesto />
+            <Work />
+            <OpenSource />
+            <Metrics />
+            <Skills />
+            <About />
+            <ContactCTA />
+          </>
+        )}
       </main>
       <Footer />
       <ChatWidget />
