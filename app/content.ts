@@ -73,6 +73,7 @@ export const seo = {
 export const nav = [
   { label: "Home", href: "#top" },
   { label: "Projects", href: "#projects" },
+  { label: "Open source", href: "#open-source" },
   { label: "Skills", href: "#skills" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
@@ -184,6 +185,73 @@ export const projects: Project[] = [
     image: "/sortlab.jpg",
     imageFocus: "left",
     fallbackTint: "night",
+  },
+];
+
+/* --------------------------------------------------------------------------
+   6b. OPEN SOURCE
+   Pull requests to other people's projects. Copy a { ... } block to add one.
+
+   status   "Merged" or "In review". Move a PR to "Merged" once it lands, and
+            delete one that is closed without merging.
+   stars    the project's GitHub stars, rounded, as text.
+   -------------------------------------------------------------------------- */
+
+export type Contribution = {
+  repo: string;
+  stars: string;
+  status: "Merged" | "In review";
+  title: string;
+  summary: string;
+  url: string;
+};
+
+export const openSourceHeading = {
+  eyebrow: "Open source",
+  headline: "Fixes sent upstream.",
+  subtext: "Bug fixes in widely used open-source developer tools, each traced to its root cause.",
+};
+
+export const openSource: Contribution[] = [
+  {
+    repo: "DietrichGebert/ponytail",
+    stars: "195k",
+    status: "Merged",
+    title: "fix(uninstall): remove the mode flag from every host state dir",
+    summary: "Uninstalling only cleared the flag file for Claude Code, so every other host kept the mode switched on. It now removes the flag from each host's own state folder.",
+    url: "https://github.com/DietrichGebert/ponytail/pull/788",
+  },
+  {
+    repo: "JuliusBrussee/caveman",
+    stars: "122k",
+    status: "Merged",
+    title: "fix(engine): preserve syslog emergencies",
+    summary: "The log compressor could drop CRIT, ALERT and EMERG lines while shrinking logs, the lines that matter most. They are now always kept, with regression tests on noisy logs.",
+    url: "https://github.com/JuliusBrussee/caveman/pull/1156",
+  },
+  {
+    repo: "ai-job-search-dev/ai-job-search",
+    stars: "73k",
+    status: "Merged",
+    title: "fix(salary): treat null metadata/categories as absent instead of crashing",
+    summary: "A salary data file that passed validation still crashed the next lookup when a field was null. Null now counts as absent, with tests for both paths.",
+    url: "https://github.com/ai-job-search-dev/ai-job-search/pull/413",
+  },
+  {
+    repo: "Graphify-Labs/graphify",
+    stars: "151k",
+    status: "In review",
+    title: "fix(apex): match qualified and generic method return types",
+    summary: "The Apex extractor skipped methods whose return type was qualified or generic, such as Map<String, List<Id>>, so they never reached the knowledge graph.",
+    url: "https://github.com/Graphify-Labs/graphify/pull/3276",
+  },
+  {
+    repo: "Graphify-Labs/graphify",
+    stars: "151k",
+    status: "In review",
+    title: "fix(apex): resolve a qualified heritage clause to its tail type",
+    summary: "A class that extends or implements a namespaced type, such as Outer.Inner, now links to the right parent type in the graph.",
+    url: "https://github.com/Graphify-Labs/graphify/pull/3278",
   },
 ];
 
@@ -392,6 +460,7 @@ export const footer = {
       head: "Explore",
       items: [
         { label: "Projects", href: "#projects" },
+        { label: "Open source", href: "#open-source" },
         { label: "Skills", href: "#skills" },
         { label: "About", href: "#about" },
       ],
@@ -468,6 +537,9 @@ ${projects
       `- ${p.name}, ${p.tag}, ${p.period}.\n  ${p.body}\n  Highlights: ${p.facets.join(", ")}.\n  Live demo: ${p.demo}\n  Source: ${p.repo || "private repository"}`,
   )
   .join("\n")}
+
+OPEN SOURCE CONTRIBUTIONS
+${openSource.map((c) => `- ${c.repo} (${c.stars} stars), ${c.status}: ${c.title}.\n  ${c.summary}\n  Pull request: ${c.url}`).join("\n")}
 
 SKILLS
 ${skills.map((s) => `- ${s.label}: ${s.items}.`).join("\n")}

@@ -23,6 +23,8 @@ import {
   metricsSection,
   nav,
   navButton,
+  openSource,
+  openSourceHeading,
   profile,
   projects,
   projectsHeading,
@@ -389,6 +391,56 @@ function Work() {
   );
 }
 
+function OpenSource() {
+  return (
+    <section id="open-source" className="px-5 py-24 md:px-10 md:py-32">
+      <div className="mx-auto max-w-[900px]">
+        <Reveal className="text-center">
+          <Eyebrow>{openSourceHeading.eyebrow}</Eyebrow>
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
+            {openSourceHeading.headline}
+          </h2>
+          <p className="mx-auto mt-6 max-w-[44ch] text-balance text-sm leading-relaxed text-ink-dim md:text-base">
+            {openSourceHeading.subtext}
+          </p>
+        </Reveal>
+
+        <ul className="mt-14 md:mt-20">
+          {openSource.map((c, i) => (
+            <li key={c.url} className="border-t border-line py-6 last:border-b">
+              <Reveal delay={i * 0.04}>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span className="text-sm font-medium text-ink">{c.repo}</span>
+                  <span className="text-xs text-ink-faint">{c.stars} stars</span>
+                  <span
+                    className={`ml-auto rounded-full border px-3 py-1 text-xs ${
+                      c.status === "Merged"
+                        ? "border-transparent bg-ink text-bg"
+                        : "border-line text-ink-dim"
+                    }`}
+                  >
+                    {c.status}
+                  </span>
+                </div>
+                <p className="mt-3 break-words font-mono text-xs text-ink-dim md:text-sm">{c.title}</p>
+                <p className="mt-2 max-w-[70ch] text-sm leading-relaxed text-ink-dim">{c.summary}</p>
+                <a
+                  href={c.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 py-1 text-sm text-ink transition-colors hover:text-ink-dim"
+                >
+                  View pull request <span aria-hidden="true">&rarr;</span>
+                </a>
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function Metrics() {
   return (
     <section className="relative overflow-hidden px-5 py-28 md:py-40">
@@ -597,6 +649,7 @@ export default function Page() {
         <Hero />
         <Manifesto />
         <Work />
+        <OpenSource />
         <Metrics />
         <Skills />
         <About />
