@@ -226,10 +226,10 @@ function Hero() {
         style={{ y: reduce ? 0 : contentY }}
         className="mx-auto flex min-h-[100dvh] max-w-[1100px] flex-col items-center px-5 pt-28 text-center md:pt-32"
       >
-        <h1 className="font-display text-[clamp(2.9rem,8vw,6rem)] leading-[1.02] tracking-tight text-ink [text-shadow:0_2px_30px_rgba(8,8,13,0.35)]">
+        <h1 className="text-balance font-display text-[clamp(2.9rem,8vw,6rem)] leading-[1.02] tracking-tight text-ink [text-shadow:0_2px_30px_rgba(8,8,13,0.35)]">
           {hero.headline}
         </h1>
-        <p className="mt-6 max-w-[46ch] text-base leading-relaxed text-ink/85 md:text-lg [text-shadow:0_1px_16px_rgba(8,8,13,0.4)]">
+        <p className="mt-6 max-w-[46ch] text-balance text-base leading-relaxed text-ink/85 md:text-lg [text-shadow:0_1px_16px_rgba(8,8,13,0.4)]">
           {hero.subtext}
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
@@ -263,10 +263,10 @@ function Manifesto() {
 function ProjectRow({ p, flip }: { p: Project; flip: boolean }) {
   return (
     <Reveal>
-      <div className="grid items-stretch gap-5 md:grid-cols-2">
+      <div className="grid items-stretch gap-5 xl:grid-cols-2">
         <div
           className={`flex flex-col rounded-[20px] border border-line bg-card p-8 md:p-10 ${
-            flip ? "md:order-2" : ""
+            flip ? "xl:order-2" : ""
           }`}
         >
           <span className="h-7 w-7 rounded-full border border-line" aria-hidden="true" />
@@ -320,8 +320,8 @@ function ProjectRow({ p, flip }: { p: Project; flip: boolean }) {
         </div>
 
         <div
-          className={`relative min-h-[300px] overflow-hidden rounded-[20px] border border-line ${
-            flip ? "md:order-1" : ""
+          className={`relative aspect-[6/5] overflow-hidden rounded-[20px] border border-line xl:aspect-auto xl:min-h-[300px] ${
+            flip ? "xl:order-1" : ""
           }`}
         >
           {p.image ? (
@@ -347,7 +347,7 @@ function Skills() {
       <div className="mx-auto max-w-[900px]">
         <Reveal className="text-center">
           <Eyebrow>{skillsHeading.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
             {skillsHeading.headline}
           </h2>
         </Reveal>
@@ -375,7 +375,7 @@ function Work() {
       <div className="mx-auto max-w-[1200px]">
         <Reveal className="text-center">
           <Eyebrow>{projectsHeading.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
             {projectsHeading.headline}
           </h2>
         </Reveal>
@@ -396,12 +396,12 @@ function Metrics() {
       <div className="mx-auto max-w-[900px] text-center">
         <Reveal>
           <Eyebrow>{metricsSection.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.08] tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.08] tracking-tight text-ink">
             {metricsSection.headline[0]}
             <br />
             {metricsSection.headline[1]}
           </h2>
-          <p className="mx-auto mt-6 max-w-[42ch] text-sm leading-relaxed text-ink-dim md:text-base">
+          <p className="mx-auto mt-6 max-w-[42ch] text-balance text-sm leading-relaxed text-ink-dim md:text-base">
             {metricsSection.subtext}
           </p>
         </Reveal>
@@ -432,7 +432,7 @@ function About() {
       <div className="mx-auto max-w-[1000px]">
         <Reveal className="text-center">
           <Eyebrow>{about.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.2rem,4.5vw,3.5rem)] leading-tight tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.2rem,4.5vw,3.5rem)] leading-tight tracking-tight text-ink">
             {about.headline}
           </h2>
           <p className="mx-auto mt-6 max-w-[60ch] text-base leading-relaxed text-ink-dim">
@@ -514,10 +514,10 @@ function ContactCTA() {
       <div className="mx-auto max-w-[900px] text-center">
         <Reveal>
           <Eyebrow>{contact.eyebrow}</Eyebrow>
-          <h2 className="mt-5 font-display text-[clamp(3rem,9vw,7rem)] leading-[0.98] tracking-tight text-ink [text-shadow:0_2px_40px_rgba(8,8,13,0.4)]">
+          <h2 className="mt-5 text-balance font-display text-[clamp(3rem,9vw,7rem)] leading-[0.98] tracking-tight text-ink [text-shadow:0_2px_40px_rgba(8,8,13,0.4)]">
             {contact.headline}
           </h2>
-          <p className="mx-auto mt-6 max-w-[44ch] text-sm leading-relaxed text-ink-dim md:text-base">
+          <p className="mx-auto mt-6 max-w-[44ch] text-balance text-sm leading-relaxed text-ink-dim md:text-base">
             {contact.subtext}
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -537,8 +537,8 @@ function ContactCTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-line bg-bg px-5 py-16 md:px-10">
-      <div className="mx-auto max-w-[1400px]">
+    <footer className="border-t border-line bg-bg pb-28 pt-16 md:pb-16">
+      <div className="mx-auto max-w-[1400px] px-5 md:px-10">
         <div className="grid gap-12 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <p className="font-display text-2xl leading-tight text-ink">
             {footer.tagline[0]}
@@ -569,7 +569,7 @@ function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 text-sm text-ink-faint sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 text-sm text-ink-faint sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center">
           <span className="font-display text-base text-ink-dim">
             {profile.fullName}<sup className="ml-0.5 text-[0.6em] align-super">®</sup>
           </span>
@@ -579,7 +579,7 @@ function Footer() {
           >
             {profile.email}
           </a>
-          <span>{profile.footerNote}</span>
+          <span className="sm:justify-self-end">{profile.footerNote}</span>
         </div>
       </div>
     </footer>
