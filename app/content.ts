@@ -73,6 +73,7 @@ export const seo = {
 export const nav = [
   { label: "Home", href: "#top" },
   { label: "Projects", href: "#projects" },
+  { label: "Open source", href: "#open-source" },
   { label: "Skills", href: "#skills" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
@@ -97,6 +98,18 @@ export const hero = {
   video: "/hero.mp4",
 };
 
+/* "Break this site", under the hero buttons. It really cuts the chatbot's API and
+   slows its requests, then the page recovers through the same retry and fallback
+   code the chatbot always uses. */
+export const breakIt = {
+  prompt: "Don't take my word for it.",
+  button: "Break this site",
+  chaosNote: "The chatbot's API is cut and each request is slowed by 700 ms.",
+  footnote: "The API failures are real, injected into this page's own requests; the broken look is the page stripping its own styles. Chaos switches off 5 s after recovery.",
+  /* The question the demo sends through the broken assistant. */
+  probeQuestion: "Which projects has he built?",
+};
+
 /* --------------------------------------------------------------------------
    5. THE BIG LINE UNDER THE HERO
    Written as two lines so the break lands where you want it.
@@ -113,6 +126,7 @@ export const manifesto = ["So it keeps working", "when you look away."];
                 "top" | "center" | "left" | "right" | "bottom"
    fallbackTint the gradient used when image is null: "sky" | "aurora" | "night"
    facets       the small pills. The first one is highlighted.
+   repo         leave "" for a private repository; the GitHub button is hidden
    -------------------------------------------------------------------------- */
 
 export type Project = {
@@ -135,6 +149,19 @@ export const projectsHeading = {
 };
 
 export const projects: Project[] = [
+  {
+    name: "RepoScribe",
+    tag: "AI code review for GitHub projects",
+    period: "Since Oct 2026",
+    body: "Paste any public GitHub repo on the home page and get a score, the top findings and one checked answer, with no account needed. Every file and line the AI cites is checked against the real repo before it becomes a link. 144 browser tests and 343 unit tests run before every release.",
+    facets: ["Try it without signing up", "Checked file references", "Next.js, tRPC, PostgreSQL", "144 browser tests"],
+    demo: "https://reposcribe.dev",
+    /* Private repository: leave "" and the card shows no GitHub button. */
+    repo: "",
+    image: "/reposcribe.jpg",
+    imageFocus: "top",
+    fallbackTint: "sky",
+  },
   {
     name: "Nova",
     tag: "AI-powered code generation platform",
@@ -170,6 +197,73 @@ export const projects: Project[] = [
     image: "/sortlab.jpg",
     imageFocus: "left",
     fallbackTint: "night",
+  },
+];
+
+/* --------------------------------------------------------------------------
+   6b. OPEN SOURCE
+   Pull requests to other people's projects. Copy a { ... } block to add one.
+
+   status   "Merged" or "In review". Move a PR to "Merged" once it lands, and
+            delete one that is closed without merging.
+   stars    the project's GitHub stars, rounded, as text.
+   -------------------------------------------------------------------------- */
+
+export type Contribution = {
+  repo: string;
+  stars: string;
+  status: "Merged" | "In review";
+  title: string;
+  summary: string;
+  url: string;
+};
+
+export const openSourceHeading = {
+  eyebrow: "Open source",
+  headline: "Fixes sent upstream.",
+  subtext: "Bug fixes in widely used open-source developer tools, each traced to its root cause.",
+};
+
+export const openSource: Contribution[] = [
+  {
+    repo: "DietrichGebert/ponytail",
+    stars: "195k",
+    status: "Merged",
+    title: "fix(uninstall): remove the mode flag from every host state dir",
+    summary: "Uninstalling only cleared the flag file for Claude Code, so every other host kept the mode switched on. It now removes the flag from each host's own state folder.",
+    url: "https://github.com/DietrichGebert/ponytail/pull/788",
+  },
+  {
+    repo: "JuliusBrussee/caveman",
+    stars: "122k",
+    status: "Merged",
+    title: "fix(engine): preserve syslog emergencies",
+    summary: "The log compressor could drop CRIT, ALERT and EMERG lines while shrinking logs, the lines that matter most. They are now always kept, with regression tests on noisy logs.",
+    url: "https://github.com/JuliusBrussee/caveman/pull/1156",
+  },
+  {
+    repo: "ai-job-search-dev/ai-job-search",
+    stars: "73k",
+    status: "Merged",
+    title: "fix(salary): treat null metadata/categories as absent instead of crashing",
+    summary: "A salary data file that passed validation still crashed the next lookup when a field was null. Null now counts as absent, with tests for both paths.",
+    url: "https://github.com/ai-job-search-dev/ai-job-search/pull/413",
+  },
+  {
+    repo: "Graphify-Labs/graphify",
+    stars: "151k",
+    status: "In review",
+    title: "fix(apex): match qualified and generic method return types",
+    summary: "The Apex extractor skipped methods whose return type was qualified or generic, such as Map<String, List<Id>>, so they never reached the knowledge graph.",
+    url: "https://github.com/Graphify-Labs/graphify/pull/3276",
+  },
+  {
+    repo: "Graphify-Labs/graphify",
+    stars: "151k",
+    status: "In review",
+    title: "fix(apex): resolve a qualified heritage clause to its tail type",
+    summary: "A class that extends or implements a namespaced type, such as Outer.Inner, now links to the right parent type in the graph.",
+    url: "https://github.com/Graphify-Labs/graphify/pull/3278",
   },
 ];
 
@@ -378,6 +472,7 @@ export const footer = {
       head: "Explore",
       items: [
         { label: "Projects", href: "#projects" },
+        { label: "Open source", href: "#open-source" },
         { label: "Skills", href: "#skills" },
         { label: "About", href: "#about" },
       ],
@@ -401,6 +496,32 @@ export const footer = {
 /* --------------------------------------------------------------------------
    12. THE AI CHATBOT
    -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   RECRUITER MODE
+   The one-screen version a recruiter switches on from the top bar. The numbers
+   and projects are picked from the sections above, so they cannot disagree.
+   -------------------------------------------------------------------------- */
+
+export const recruiter = {
+  switchLabel: "Recruiter mode",
+  eyebrow: "The 30-second version",
+  headline: "Software engineer, full-stack and AI.",
+  line: "Kolkata, India. MCA at IEM, 2026 to 2028. Open to SDE roles and internships now.",
+  stack: "TypeScript, Python, Next.js, tRPC, PostgreSQL, LLM agents, Docker",
+  numbers: [
+    { value: "<1%", label: "Agent failure rate on Nova, down from about 15%" },
+    { value: "84%", label: "Strokes caught by NeuroPredict, up from none" },
+    {
+      value: String(openSource.filter((c) => c.status === "Merged").length),
+      label: "Open-source fixes merged into widely used developer tools",
+    },
+  ],
+  /* How many project cards to show, taken from the top of `projects`. */
+  projectCount: 3,
+  outro: "Want the long version?",
+  outroLink: "Turn recruiter mode off",
+};
 
 export const chat = {
   launcherOpen: "Ask about me",
@@ -427,49 +548,57 @@ export const chat = {
    and the page can never fall out of step.
    -------------------------------------------------------------------------- */
 
-export function resumeFacts(): string {
+/* Every fact the assistant may use, under a label it must cite. The label is also
+   what the visitor sees under an answer, and `href` is where that fact lives on the
+   page, so a source chip can take them there. */
+export type FactSource = { label: string; href: string; text: string };
+
+export function factSources(): FactSource[] {
   const list = (items: string[]) => items.map((i) => `- ${i}`).join("\n");
+  const repos = [...new Set(openSource.map((c) => c.repo))];
+  return [
+    {
+      label: "Contact",
+      href: "#contact",
+      text: `${profile.fullName} is a ${profile.role.toLowerCase()} based in ${profile.location}. Phone: ${profile.phone}. Email: ${profile.email}. GitHub: ${profile.github}. LinkedIn: ${profile.linkedin}.${profile.website ? ` Portfolio: ${profile.website}.` : ""} He is open to software engineering roles and internships.`,
+    },
+    { label: "Summary", href: "#about", text: summary },
+    ...experience.map((j) => ({
+      label: `Experience: ${j.org}`,
+      href: "#about",
+      text: `${j.role}, ${j.period}.\n${list(j.points)}`,
+    })),
+    {
+      label: "Education",
+      href: "#about",
+      text: list(education.map((e) => `${e.degree}, ${e.school}. ${e.meta}.`)),
+    },
+    ...projects.map((p) => ({
+      label: `Projects: ${p.name}`,
+      href: "#projects",
+      text: `${p.tag}, ${p.period}. ${p.body} Highlights: ${p.facets.join(", ")}. Live demo: ${p.demo}. Source: ${p.repo || "private repository"}.`,
+    })),
+    ...repos.map((repo) => ({
+      label: `Open source: ${repo}`,
+      href: "#open-source",
+      text: openSource
+        .filter((c) => c.repo === repo)
+        .map((c) => `${c.repo} (${c.stars} stars), ${c.status}: ${c.title}. ${c.summary} Pull request: ${c.url}`)
+        .join("\n"),
+    })),
+    ...skills.map((g) => ({ label: `Skills: ${g.label}`, href: "#skills", text: g.items })),
+    { label: "Certifications", href: "#about", text: list(certifications) },
+    { label: "Achievements", href: "#about", text: list(achievements) },
+    { label: "Hiring and availability", href: "#contact", text: hiringLines() },
+    { label: "Personal", href: "#about", text: personalLines() },
+  ];
+}
 
-  return `
-${profile.fullName} is a ${profile.role.toLowerCase()} based in ${profile.location}.
-Phone: ${profile.phone}. Email: ${profile.email}.
-GitHub: ${profile.github}. LinkedIn: ${profile.linkedin}.${profile.website ? ` Portfolio: ${profile.website}.` : ""}
-He is open to software engineering roles and internships.
-
-SUMMARY
-${summary}
-
-EDUCATION
-${education.map((e) => `- ${e.degree}, ${e.school}. ${e.meta}.`).join("\n")}
-
-EXPERIENCE
-${experience
-  .map((j) => `- ${j.org}. ${j.role}, ${j.period}.\n${j.points.map((p) => `  ${p}`).join("\n")}`)
-  .join("\n")}
-
-PROJECTS
-${projects
-  .map(
-    (p) =>
-      `- ${p.name}, ${p.tag}, ${p.period}.\n  ${p.body}\n  Highlights: ${p.facets.join(", ")}.\n  Live demo: ${p.demo}\n  Source: ${p.repo}`,
-  )
-  .join("\n")}
-
-SKILLS
-${skills.map((s) => `- ${s.label}: ${s.items}.`).join("\n")}
-
-CERTIFICATIONS
-${list(certifications)}
-
-ACHIEVEMENTS
-${list(achievements)}
-
-HIRING AND AVAILABILITY
-${hiringLines()}
-
-PERSONAL
-${personalLines()}
-`.trim();
+/* The briefing the chatbot reads: every fact, each under the label it cites. */
+export function resumeFacts(): string {
+  return factSources()
+    .map((f) => `[${f.label}]\n${f.text}`)
+    .join("\n\n");
 }
 
 /* Same rule as hiring: an empty line is omitted so the assistant says it does

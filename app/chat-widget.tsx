@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { chat } from "./content";
+import { askAssistant, type Msg } from "./assistant";
+import { chat, factSources } from "./content";
 import { parseLinks } from "./links";
 
-type Msg = { role: "user" | "model"; text: string };
+/* Where each cited fact lives on the page, so a source chip can take you there. */
+const SOURCE_HREF = new Map(factSources().map((f) => [f.label, f.href]));
 
 
 
@@ -83,31 +85,12 @@ export function ChatWidget() {
     setBusy(true);
 
     try {
-      /* busy is what disables Send and blocks the next question, and only the
-         finally below clears it. A request that never settles therefore kills the
-         widget for the rest of the visit, so it is never allowed to hang: the
-         server answers within its own deadline, and this covers the case where the
-         connection itself stalls and no response ever arrives. */
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        signal: AbortSignal.timeout(25_000),
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: next, session: sessionRef.current }),
-      });
-      /* The route always answers JSON, but a platform error page in front of it
-         would not, and parsing that threw the raw SyntaxError into the panel. */
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.text) {
-        setError(data?.error || "The assistant did not reply. Please try again.");
-        return;
-      }
-      setMsgs([...next, { role: "model", text: data.text }]);
-    } catch {
-      /* Only transport failures reach here: an aborted fetch throws a DOMException
-         reading "signal timed out", a dropped connection a TypeError reading
-         "Failed to fetch". Neither is copy to put in front of a visitor, and the
-         server's own wording is handled above, where it still has the response. */
-      setError("Could not reach the assistant. Please try again.");
+      /* askAssistant never hangs (one 30 s deadline across its retries) and only
+         throws with copy that is fit to show, so busy always clears below. */
+      const answer = await askAssistant(next, sessionRef.current);
+      setMsgs([...next, { role: "model", ...answer }]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not reach the assistant. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -167,18 +150,38 @@ export function ChatWidget() {
             </div>
           ) : null}
 
-          {msgs.map((m, i) => (
-            <p
-              key={i}
-              className={
-                m.role === "user"
-                  ? "ml-auto max-w-[85%] rounded-[14px] bg-ink px-3.5 py-2 text-sm text-bg"
-                  : "max-w-[90%] text-sm leading-relaxed text-ink-dim"
-              }
-            >
-              {m.role === "model" ? withLinks(m.text) : m.text}
-            </p>
-          ))}
+          {msgs.map((m, i) =>
+            m.role === "user" ? (
+              <p key={i} className="ml-auto max-w-[85%] rounded-[14px] bg-ink px-3.5 py-2 text-sm text-bg">
+                {m.text}
+              </p>
+            ) : (
+              <div key={i} className="max-w-[90%]">
+                <p className="text-sm leading-relaxed text-ink-dim">{withLinks(m.text)}</p>
+                {m.fallback ? (
+                  <p className="mt-1.5 text-xs text-ink-faint">
+                    Answered from his saved profile while the live AI was down.
+                  </p>
+                ) : null}
+                {m.sources?.length ? (
+                  <ul aria-label="Sources" className="mt-2 flex flex-wrap gap-1.5">
+                    {m.sources.map((label, n) => (
+                      <li key={label}>
+                        <a
+                          href={SOURCE_HREF.get(label) ?? "#top"}
+                          className="inline-flex items-center rounded-full border border-line px-2.5 py-1 text-[11px] text-ink-dim transition-colors hover:border-white/40 hover:text-ink"
+                        >
+                          {n + 1}. {label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : m.sources ? (
+                  <p className="mt-1.5 text-xs text-ink-faint">No source: not in his profile.</p>
+                ) : null}
+              </div>
+            ),
+          )}
 
           {busy ? <p className="text-sm text-ink-faint">Thinking...</p> : null}
           {error ? <p className="text-sm text-ink-faint">{error}</p> : null}

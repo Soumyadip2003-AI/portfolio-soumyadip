@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValueEvent,
@@ -9,7 +9,9 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
+import { BreakIt } from "./break-it";
 import { ChatWidget } from "./chat-widget";
+import { ProjectStatus } from "./project-status";
 import {
   about,
   certifications,
@@ -23,9 +25,12 @@ import {
   metricsSection,
   nav,
   navButton,
+  openSource,
+  openSourceHeading,
   profile,
   projects,
   projectsHeading,
+  recruiter,
   skills,
   skillsHeading,
   type Project,
@@ -98,7 +103,79 @@ function Eyebrow({ children }: { children: ReactNode }) {
 /* sections                                                            */
 /* ------------------------------------------------------------------ */
 
-function Nav() {
+/* Where each piece lands when "Break this site" knocks it down: drift, drop,
+   spin and timing, read by the .chaos-fall rules in globals.css. Seeded by index,
+   not Math.random, so the server and the browser render the same values. */
+function fallVars(i: number): CSSProperties {
+  const r = (k: number) => {
+    const x = Math.sin((i + 1) * 12.9898 + k * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  return {
+    "--fall-x": `${Math.round((r(1) * 2 - 1) * 140)}px`,
+    "--fall-y": `${Math.round(58 + r(2) * 30)}vh`,
+    "--fall-r": `${Math.round((r(3) * 2 - 1) * 80)}deg`,
+    "--fall-d": `${(r(4) * 0.4).toFixed(2)}s`,
+    "--heal-d": `${(r(5) * 0.6).toFixed(2)}s`,
+  } as CSSProperties;
+}
+
+/* Each word its own piece, so a headline falls apart word by word. */
+function FallWords({ text, seed }: { text: string; seed: number }) {
+  return text.split(" ").map((word, i) => (
+    <Fragment key={i}>
+      {i > 0 ? " " : null}
+      <span className="chaos-fall inline-block" style={fallVars(seed + i)}>
+        {word}
+      </span>
+    </Fragment>
+  ));
+}
+
+/* Recruiter mode lives in the URL (?view=recruiter), so a recruiter can share the
+   short version and a reload keeps it. */
+function useRecruiterMode() {
+  const [on, setOn] = useState(false);
+  useEffect(() => setOn(new URLSearchParams(window.location.search).get("view") === "recruiter"), []);
+  const set = (next: boolean) => {
+    setOn(next);
+    const url = new URL(window.location.href);
+    if (next) url.searchParams.set("view", "recruiter");
+    else url.searchParams.delete("view");
+    window.history.replaceState(null, "", url);
+    window.scrollTo({ top: 0 });
+  };
+  return [on, set] as const;
+}
+
+function RecruiterSwitch({ on, onChange, className = "", style }: { on: boolean; onChange: (v: boolean) => void; className?: string; style?: CSSProperties }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={() => onChange(!on)}
+      style={style}
+      className={`items-center gap-2.5 whitespace-nowrap text-sm text-ink-dim transition-colors hover:text-ink ${className}`}
+    >
+      {recruiter.switchLabel}
+      <span
+        aria-hidden="true"
+        className={`relative h-[22px] w-[38px] shrink-0 rounded-full border transition-colors ${
+          on ? "border-transparent bg-ink" : "border-white/30 bg-transparent"
+        }`}
+      >
+        <span
+          className={`absolute top-[2px] h-4 w-4 rounded-full transition-[left,background-color] duration-200 ${
+            on ? "left-[18px] bg-bg" : "left-[2px] bg-ink-dim"
+          }`}
+        />
+      </span>
+    </button>
+  );
+}
+
+function Nav({ recruiterOn, setRecruiter }: { recruiterOn: boolean; setRecruiter: (v: boolean) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 80));
@@ -115,28 +192,29 @@ function Nav() {
         scrolled ? "border-b border-line bg-bg/80 backdrop-blur-md" : ""
       }`}
     >
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-5 py-5 md:grid md:grid-cols-[1fr_auto_1fr] md:px-10">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-5 py-5 md:px-10 lg:grid lg:grid-cols-[1fr_auto_1fr]">
         <a
           href="#top"
-          className="whitespace-nowrap font-display text-base text-ink sm:text-lg md:text-xl"
+          className="chaos-fall whitespace-nowrap font-display text-base text-ink sm:text-lg md:text-xl"
+          style={fallVars(1)}
         >
           {profile.fullName}<sup className="ml-0.5 align-super text-[0.6em]">®</sup>
         </a>
-        <nav className="hidden items-center gap-8 justify-self-center text-sm text-ink-dim md:flex">
-          {nav.map((n) => (
-            <a key={n.href} href={n.href} className="transition-colors hover:text-ink">
+        <nav className="hidden items-center gap-8 justify-self-center text-sm text-ink-dim lg:flex">
+          {(recruiterOn ? [] : nav).map((n, i) => (
+            <a key={n.href} href={n.href} className="chaos-fall transition-colors hover:text-ink" style={fallVars(10 + i)}>
               {n.label}
             </a>
           ))}
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 justify-self-end">
-          {/* Phones only: above md the nav above is already visible. <details> is the
+          {/* Below lg only: from lg the nav above is visible. <details> is the
               entire menu. It opens and closes itself, reads as a button to a screen
               reader, and takes keyboard focus, so no state, no effect and no focus
               handling has to be written, and it works before hydration. The one
               thing it will not do is close when a link inside it is followed. */}
-          <details className="relative md:hidden">
+          <details className="chaos-fall relative lg:hidden" style={fallVars(8)}>
             <summary
               className={`${PILL} cursor-pointer list-none !px-4 !py-2.5 [&::-webkit-details-marker]:hidden`}
             >
@@ -146,7 +224,7 @@ function Nav() {
               onClick={(e) => e.currentTarget.closest("details")?.removeAttribute("open")}
               className="absolute right-0 top-full mt-2 flex min-w-[10rem] flex-col overflow-hidden rounded-[14px] border border-line bg-card"
             >
-              {nav.map((n) => (
+              {(recruiterOn ? [] : nav).map((n) => (
                 <a
                   key={n.href}
                   href={n.href}
@@ -155,10 +233,17 @@ function Nav() {
                   {n.label}
                 </a>
               ))}
+              <RecruiterSwitch
+                on={recruiterOn}
+                onChange={setRecruiter}
+                className="flex justify-between border-t border-line px-5 py-3"
+              />
             </nav>
           </details>
 
-          <a href={navButton.href} className={`${PILL} shrink-0 !px-5 !py-2.5`}>
+          <RecruiterSwitch on={recruiterOn} onChange={setRecruiter} className="chaos-fall mr-3 hidden min-h-11 lg:inline-flex" style={fallVars(17)} />
+
+          <a href={navButton.href} className={`${PILL} chaos-fall shrink-0 !px-5 !py-2.5`} style={fallVars(18)}>
             {navButton.label}
           </a>
         </div>
@@ -226,21 +311,22 @@ function Hero() {
         style={{ y: reduce ? 0 : contentY }}
         className="mx-auto flex min-h-[100dvh] max-w-[1100px] flex-col items-center px-5 pt-28 text-center md:pt-32"
       >
-        <h1 className="font-display text-[clamp(2.9rem,8vw,6rem)] leading-[1.02] tracking-tight text-ink [text-shadow:0_2px_30px_rgba(8,8,13,0.35)]">
-          {hero.headline}
+        <h1 className="text-balance font-display text-[clamp(2.9rem,8vw,6rem)] leading-[1.02] tracking-tight text-ink [text-shadow:0_2px_30px_rgba(8,8,13,0.35)]">
+          <FallWords text={hero.headline} seed={20} />
         </h1>
-        <p className="mt-6 max-w-[46ch] text-base leading-relaxed text-ink/85 md:text-lg [text-shadow:0_1px_16px_rgba(8,8,13,0.4)]">
-          {hero.subtext}
+        <p className="mt-6 max-w-[46ch] text-balance text-base leading-relaxed text-ink/85 md:text-lg [text-shadow:0_1px_16px_rgba(8,8,13,0.4)]">
+          <FallWords text={hero.subtext} seed={40} />
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <a href={hero.primaryButton.href} className={PILL}>
+          <a href={hero.primaryButton.href} className={`${PILL} chaos-fall`} style={fallVars(80)}>
             {hero.primaryButton.label}
             <span aria-hidden="true">&rarr;</span>
           </a>
-          <a href={hero.secondaryButton.href} className={PILL_GHOST}>
+          <a href={hero.secondaryButton.href} className={`${PILL_GHOST} chaos-fall`} style={fallVars(81)}>
             {hero.secondaryButton.label}
           </a>
         </div>
+        <BreakIt />
       </motion.div>
     </section>
   );
@@ -263,13 +349,13 @@ function Manifesto() {
 function ProjectRow({ p, flip }: { p: Project; flip: boolean }) {
   return (
     <Reveal>
-      <div className="grid items-stretch gap-5 md:grid-cols-2">
+      <div className="grid items-stretch gap-5 xl:grid-cols-2">
         <div
           className={`flex flex-col rounded-[20px] border border-line bg-card p-8 md:p-10 ${
-            flip ? "md:order-2" : ""
+            flip ? "xl:order-2" : ""
           }`}
         >
-          <span className="h-7 w-7 rounded-full border border-line" aria-hidden="true" />
+          <ProjectStatus name={p.name} />
           <p className="mt-6 text-xs uppercase tracking-[0.2em] text-ink-faint">{p.period}</p>
           <h3 className="mt-2 font-display text-4xl leading-tight tracking-tight text-ink md:text-5xl">
             {p.name}
@@ -306,20 +392,22 @@ function ProjectRow({ p, flip }: { p: Project; flip: boolean }) {
               Live demo
               <span aria-hidden="true">&rarr;</span>
             </a>
-            <a
-              href={p.repo}
-              target="_blank"
-              rel="noreferrer"
-              className={`${PILL_GHOST} w-fit !px-5 !py-2.5`}
-            >
-              View on GitHub
-            </a>
+            {p.repo && (
+              <a
+                href={p.repo}
+                target="_blank"
+                rel="noreferrer"
+                className={`${PILL_GHOST} w-fit !px-5 !py-2.5`}
+              >
+                View on GitHub
+              </a>
+            )}
           </div>
         </div>
 
         <div
-          className={`relative min-h-[300px] overflow-hidden rounded-[20px] border border-line ${
-            flip ? "md:order-1" : ""
+          className={`relative aspect-[6/5] overflow-hidden rounded-[20px] border border-line xl:aspect-auto xl:min-h-[300px] ${
+            flip ? "xl:order-1" : ""
           }`}
         >
           {p.image ? (
@@ -345,7 +433,7 @@ function Skills() {
       <div className="mx-auto max-w-[900px]">
         <Reveal className="text-center">
           <Eyebrow>{skillsHeading.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
             {skillsHeading.headline}
           </h2>
         </Reveal>
@@ -373,7 +461,7 @@ function Work() {
       <div className="mx-auto max-w-[1200px]">
         <Reveal className="text-center">
           <Eyebrow>{projectsHeading.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
             {projectsHeading.headline}
           </h2>
         </Reveal>
@@ -387,6 +475,56 @@ function Work() {
   );
 }
 
+function OpenSource() {
+  return (
+    <section id="open-source" className="px-5 py-24 md:px-10 md:py-32">
+      <div className="mx-auto max-w-[900px]">
+        <Reveal className="text-center">
+          <Eyebrow>{openSourceHeading.eyebrow}</Eyebrow>
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-tight tracking-tight text-ink">
+            {openSourceHeading.headline}
+          </h2>
+          <p className="mx-auto mt-6 max-w-[44ch] text-balance text-sm leading-relaxed text-ink-dim md:text-base">
+            {openSourceHeading.subtext}
+          </p>
+        </Reveal>
+
+        <ul className="mt-14 md:mt-20">
+          {openSource.map((c, i) => (
+            <li key={c.url} className="border-t border-line py-6 last:border-b">
+              <Reveal delay={i * 0.04}>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span className="text-sm font-medium text-ink">{c.repo}</span>
+                  <span className="text-xs text-ink-faint">{c.stars} stars</span>
+                  <span
+                    className={`ml-auto rounded-full border px-3 py-1 text-xs ${
+                      c.status === "Merged"
+                        ? "border-transparent bg-ink text-bg"
+                        : "border-line text-ink-dim"
+                    }`}
+                  >
+                    {c.status}
+                  </span>
+                </div>
+                <p className="mt-3 break-words font-mono text-xs text-ink-dim md:text-sm">{c.title}</p>
+                <p className="mt-2 max-w-[70ch] text-sm leading-relaxed text-ink-dim">{c.summary}</p>
+                <a
+                  href={c.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 py-1 text-sm text-ink transition-colors hover:text-ink-dim"
+                >
+                  View pull request <span aria-hidden="true">&rarr;</span>
+                </a>
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function Metrics() {
   return (
     <section className="relative overflow-hidden px-5 py-28 md:py-40">
@@ -394,12 +532,12 @@ function Metrics() {
       <div className="mx-auto max-w-[900px] text-center">
         <Reveal>
           <Eyebrow>{metricsSection.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.08] tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.08] tracking-tight text-ink">
             {metricsSection.headline[0]}
             <br />
             {metricsSection.headline[1]}
           </h2>
-          <p className="mx-auto mt-6 max-w-[42ch] text-sm leading-relaxed text-ink-dim md:text-base">
+          <p className="mx-auto mt-6 max-w-[42ch] text-balance text-sm leading-relaxed text-ink-dim md:text-base">
             {metricsSection.subtext}
           </p>
         </Reveal>
@@ -430,7 +568,7 @@ function About() {
       <div className="mx-auto max-w-[1000px]">
         <Reveal className="text-center">
           <Eyebrow>{about.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(2.2rem,4.5vw,3.5rem)] leading-tight tracking-tight text-ink">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.2rem,4.5vw,3.5rem)] leading-tight tracking-tight text-ink">
             {about.headline}
           </h2>
           <p className="mx-auto mt-6 max-w-[60ch] text-base leading-relaxed text-ink-dim">
@@ -512,10 +650,10 @@ function ContactCTA() {
       <div className="mx-auto max-w-[900px] text-center">
         <Reveal>
           <Eyebrow>{contact.eyebrow}</Eyebrow>
-          <h2 className="mt-5 font-display text-[clamp(3rem,9vw,7rem)] leading-[0.98] tracking-tight text-ink [text-shadow:0_2px_40px_rgba(8,8,13,0.4)]">
+          <h2 className="mt-5 text-balance font-display text-[clamp(3rem,9vw,7rem)] leading-[0.98] tracking-tight text-ink [text-shadow:0_2px_40px_rgba(8,8,13,0.4)]">
             {contact.headline}
           </h2>
-          <p className="mx-auto mt-6 max-w-[44ch] text-sm leading-relaxed text-ink-dim md:text-base">
+          <p className="mx-auto mt-6 max-w-[44ch] text-balance text-sm leading-relaxed text-ink-dim md:text-base">
             {contact.subtext}
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -535,8 +673,8 @@ function ContactCTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-line bg-bg px-5 py-16 md:px-10">
-      <div className="mx-auto max-w-[1400px]">
+    <footer className="border-t border-line bg-bg pb-28 pt-16 md:pb-16">
+      <div className="mx-auto max-w-[1400px] px-5 md:px-10">
         <div className="grid gap-12 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <p className="font-display text-2xl leading-tight text-ink">
             {footer.tagline[0]}
@@ -567,7 +705,7 @@ function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 text-sm text-ink-faint sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-line pt-6 text-sm text-ink-faint sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center">
           <span className="font-display text-base text-ink-dim">
             {profile.fullName}<sup className="ml-0.5 text-[0.6em] align-super">®</sup>
           </span>
@@ -577,7 +715,7 @@ function Footer() {
           >
             {profile.email}
           </a>
-          <span>{profile.footerNote}</span>
+          <span className="sm:justify-self-end">{profile.footerNote}</span>
         </div>
       </div>
     </footer>
@@ -586,19 +724,102 @@ function Footer() {
 
 /* ------------------------------------------------------------------ */
 
+function RecruiterView({ onExit }: { onExit: () => void }) {
+  return (
+    <section aria-label="Recruiter summary" className="px-5 pb-24 pt-32 md:px-10 md:pt-40">
+      <div className="mx-auto max-w-[1200px]">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <Eyebrow>{recruiter.eyebrow}</Eyebrow>
+            <h1 className="mt-5 text-balance font-display text-[clamp(2.75rem,6vw,4.75rem)] leading-[1.02] tracking-tight text-ink">
+              {recruiter.headline}
+            </h1>
+            <p className="mt-5 max-w-[48ch] text-base leading-relaxed text-ink-dim md:text-lg">{recruiter.line}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {profile.resumeUrl ? (
+                <a
+                  href={profile.resumeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-bg transition-transform active:scale-[0.98]"
+                >
+                  View resume
+                </a>
+              ) : null}
+              <a href={`mailto:${profile.email}`} className={PILL_GHOST}>
+                Email me
+              </a>
+              <a href={profile.linkedin} target="_blank" rel="noreferrer" className={PILL_GHOST}>
+                LinkedIn
+              </a>
+            </div>
+            <p className="mt-6 text-sm text-ink-faint">{recruiter.stack}</p>
+          </div>
+          <dl className="self-center">
+            {recruiter.numbers.map((n) => (
+              <div
+                key={n.label}
+                className="grid grid-cols-[96px_1fr] items-baseline gap-5 border-t border-line py-5 last:border-b md:grid-cols-[160px_1fr] md:gap-6 md:py-6"
+              >
+                <dt className="font-display text-5xl leading-none text-ink md:text-6xl">{n.value}</dt>
+                <dd className="text-sm leading-relaxed text-ink-dim md:text-base">{n.label}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <ul className="mt-14 grid gap-4 md:grid-cols-3">
+          {projects.slice(0, recruiter.projectCount).map((p) => (
+            <li key={p.name}>
+              <a
+                href={p.demo}
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-full flex-col gap-1.5 rounded-[20px] border border-line bg-card p-6 transition-colors hover:border-white/30"
+              >
+                <span className="font-display text-3xl text-ink">{p.name}</span>
+                <span className="text-sm text-ink-dim">{p.tag}</span>
+                <span className="mt-3 text-sm text-ink">
+                  Live demo <span aria-hidden="true">&rarr;</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-10 text-sm text-ink-faint">
+          {recruiter.outro}{" "}
+          <button type="button" onClick={onExit} className="text-ink underline underline-offset-4 hover:text-ink-dim">
+            {recruiter.outroLink}
+          </button>{" "}
+          for the full site.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function Page() {
+  const [recruiterOn, setRecruiter] = useRecruiterMode();
   return (
     <>
       <div aria-hidden="true" className="grain-layer" />
-      <Nav />
+      <Nav recruiterOn={recruiterOn} setRecruiter={setRecruiter} />
       <main>
-        <Hero />
-        <Manifesto />
-        <Work />
-        <Metrics />
-        <Skills />
-        <About />
-        <ContactCTA />
+        {recruiterOn ? (
+          <RecruiterView onExit={() => setRecruiter(false)} />
+        ) : (
+          <>
+            <Hero />
+            <Manifesto />
+            <Work />
+            <OpenSource />
+            <Metrics />
+            <Skills />
+            <About />
+            <ContactCTA />
+          </>
+        )}
       </main>
       <Footer />
       <ChatWidget />
