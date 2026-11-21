@@ -510,6 +510,7 @@ export const recruiter = {
   line: "Kolkata, India. MCA at IEM, 2026 to 2028. Open to SDE roles and internships now.",
   stack: "TypeScript, Python, Next.js, tRPC, PostgreSQL, LLM agents, Docker",
   numbers: [
+    { value: "100%", label: "File references in RepoScribe answers checked against the real repo" },
     { value: "<1%", label: "Agent failure rate on Nova, down from about 15%" },
     { value: "84%", label: "Strokes caught by NeuroPredict, up from none" },
     {
@@ -525,8 +526,12 @@ export const recruiter = {
     points: [
       "Every file and line the AI cites is checked against the real repo before it is shown, so it cannot invent references.",
       "Opens fix pull requests through a GitHub App with short-lived, per-repo tokens, and never stores a token.",
-      "144 browser tests and 343 unit tests run before every release.",
-      "Kept on Vercel's free tier by cutting background server calls about 10x after hitting its CPU limit.",
+    ],
+    /* Shown as big numbers above the points. */
+    stats: [
+      { value: "144", label: "browser tests before every release" },
+      { value: "343", label: "unit tests" },
+      { value: "10x", label: "fewer server calls, kept on the free tier" },
     ],
     stack: "Next.js 15, TypeScript, tRPC, PostgreSQL (Prisma, Neon), Clerk, GitHub App, Vercel",
     demo: "https://reposcribe.dev",

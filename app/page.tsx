@@ -784,13 +784,23 @@ function RecruiterView({ onExit }: { onExit: () => void }) {
                 {recruiter.featured.cta} <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
-            <ul className="flex flex-col">
+            <div>
+            <dl className="grid grid-cols-3 gap-4 border-b border-line pb-6">
+              {recruiter.featured.stats.map((st) => (
+                <div key={st.label} className="min-w-0">
+                  <dt className="font-display text-4xl leading-none text-ink md:text-5xl">{st.value}</dt>
+                  <dd className="mt-2 text-xs leading-snug text-ink-dim md:text-sm">{st.label}</dd>
+                </div>
+              ))}
+            </dl>
+            <ul className="mt-2 flex flex-col">
               {recruiter.featured.points.map((pt) => (
-                <li key={pt} className="border-t border-line py-4 text-sm leading-relaxed text-ink-dim first:border-t-0 first:pt-0 md:text-base">
+                <li key={pt} className="border-t border-line py-4 text-sm leading-relaxed text-ink-dim first:border-t-0 md:text-base">
                   {pt}
                 </li>
               ))}
             </ul>
+            </div>
           </div>
         </article>
 
