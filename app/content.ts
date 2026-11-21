@@ -517,7 +517,22 @@ export const recruiter = {
       label: "Open-source fixes merged into widely used developer tools",
     },
   ],
-  /* How many project cards to show, taken from the top of `projects`. */
+  /* The one project shown in full. The rest come from `projects` below it. */
+  featured: {
+    name: "RepoScribe",
+    label: "Best project",
+    pitch: "An AI code reviewer for GitHub repos, live at reposcribe.dev. Paste any public repo and get a score, the top findings and answers you can trust, with no account needed.",
+    points: [
+      "Every file and line the AI cites is checked against the real repo before it is shown, so it cannot invent references.",
+      "Opens fix pull requests through a GitHub App with short-lived, per-repo tokens, and never stores a token.",
+      "144 browser tests and 343 unit tests run before every release.",
+      "Kept on Vercel's free tier by cutting background server calls about 10x after hitting its CPU limit.",
+    ],
+    stack: "Next.js 15, TypeScript, tRPC, PostgreSQL (Prisma, Neon), Clerk, GitHub App, Vercel",
+    demo: "https://reposcribe.dev",
+    cta: "Try it, no sign-up",
+  },
+  /* How many other project cards to show under it. */
   projectCount: 3,
   outro: "Want the long version?",
   outroLink: "Turn recruiter mode off",

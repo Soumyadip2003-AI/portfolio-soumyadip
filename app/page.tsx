@@ -768,8 +768,34 @@ function RecruiterView({ onExit }: { onExit: () => void }) {
           </dl>
         </div>
 
-        <ul className="mt-14 grid gap-4 md:grid-cols-3">
-          {projects.slice(0, recruiter.projectCount).map((p) => (
+        <article aria-label={recruiter.featured.label} className="mt-14 rounded-[20px] border border-line bg-card p-6 md:p-10">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-ink-faint">{recruiter.featured.label}</p>
+              <h2 className="mt-3 font-display text-4xl leading-tight tracking-tight text-ink md:text-5xl">{recruiter.featured.name}</h2>
+              <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-dim md:text-base">{recruiter.featured.pitch}</p>
+              <p className="mt-5 text-xs leading-relaxed text-ink-faint">{recruiter.featured.stack}</p>
+              <a
+                href={recruiter.featured.demo}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-bg transition-transform active:scale-[0.98]"
+              >
+                {recruiter.featured.cta} <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+            <ul className="flex flex-col">
+              {recruiter.featured.points.map((pt) => (
+                <li key={pt} className="border-t border-line py-4 text-sm leading-relaxed text-ink-dim first:border-t-0 first:pt-0 md:text-base">
+                  {pt}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </article>
+
+        <ul className="mt-4 grid gap-4 md:grid-cols-3">
+          {projects.filter((p) => p.name !== recruiter.featured.name).slice(0, recruiter.projectCount).map((p) => (
             <li key={p.name}>
               <a
                 href={p.demo}
