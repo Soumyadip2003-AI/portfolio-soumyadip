@@ -32,6 +32,17 @@ function dropToFloor() {
   document.querySelectorAll<HTMLElement>(".chaos-fall").forEach((el, i) => {
     const box = el.getBoundingClientRect();
     if (box.bottom < 0 || box.top > floor) return;
+    /* About 4 in 10 pieces hang from one top corner, like a sign that lost a
+       nail, instead of falling. Picked by index, so they spread across the page. */
+    if ((i * 53) % 100 < 40) {
+      const left = i % 2 === 0;
+      el.dataset.hang = "";
+      el.style.setProperty("--hang-o", left ? "0% 0%" : "100% 0%");
+      el.style.setProperty("--hang-r", `${(left ? 1 : -1) * (28 + ((i * 29) % 45))}deg`);
+      el.style.setProperty("--fall-y", `${6 + ((i * 17) % 14)}px`);
+      return;
+    }
+    delete el.dataset.hang;
     const pile = 12 + ((i * 37) % 80);
     /* A spun piece reaches lower than its upright box: half its rotated height. */
     const spin = (parseFloat(el.style.getPropertyValue("--fall-r")) || 0) * (Math.PI / 180);
