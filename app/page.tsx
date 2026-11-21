@@ -768,24 +768,45 @@ function RecruiterView({ onExit }: { onExit: () => void }) {
           </dl>
         </div>
 
-        <ul className="mt-14 grid gap-4 md:grid-cols-3">
-          {projects.slice(0, recruiter.projectCount).map((p) => (
-            <li key={p.name}>
-              <a
-                href={p.demo}
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-full flex-col gap-1.5 rounded-[20px] border border-line bg-card p-6 transition-colors hover:border-white/30"
-              >
-                <span className="font-display text-3xl text-ink">{p.name}</span>
-                <span className="text-sm text-ink-dim">{p.tag}</span>
-                <span className="mt-3 text-sm text-ink">
-                  Live demo <span aria-hidden="true">&rarr;</span>
-                </span>
-              </a>
-            </li>
+        <div className="mt-14 flex flex-col gap-5">
+          {recruiter.showcase.map((pr) => (
+            <article key={pr.name} aria-label={pr.name} className="rounded-[20px] border border-line bg-card p-6 md:p-10">
+              <div className="grid gap-8 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-ink-faint">{pr.label}</p>
+                  <h2 className="mt-3 font-display text-4xl leading-tight tracking-tight text-ink md:text-5xl">{pr.name}</h2>
+                  <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-dim md:text-base">{pr.pitch}</p>
+                  <p className="mt-5 text-xs leading-relaxed text-ink-faint">{pr.stack}</p>
+                  <a
+                    href={pr.demo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-bg transition-transform active:scale-[0.98]"
+                  >
+                    {pr.cta} <span aria-hidden="true">&rarr;</span>
+                  </a>
+                </div>
+                <div className="min-w-0">
+                  <dl className="grid grid-cols-3 gap-4 border-b border-line pb-6">
+                    {pr.stats.map((st) => (
+                      <div key={st.label} className="min-w-0">
+                        <dt className="font-display text-4xl leading-none text-ink md:text-5xl">{st.value}</dt>
+                        <dd className="mt-2 text-xs leading-snug text-ink-dim md:text-sm">{st.label}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <ul className="mt-2 flex flex-col">
+                    {pr.points.map((pt) => (
+                      <li key={pt} className="border-t border-line py-4 text-sm leading-relaxed text-ink-dim first:border-t-0 md:text-base">
+                        {pt}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </article>
           ))}
-        </ul>
+        </div>
 
         <p className="mt-10 text-sm text-ink-faint">
           {recruiter.outro}{" "}

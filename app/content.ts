@@ -510,6 +510,7 @@ export const recruiter = {
   line: "Kolkata, India. MCA at IEM, 2026 to 2028. Open to SDE roles and internships now.",
   stack: "TypeScript, Python, Next.js, tRPC, PostgreSQL, LLM agents, Docker",
   numbers: [
+    { value: "100%", label: "File references in RepoScribe answers checked against the real repo" },
     { value: "<1%", label: "Agent failure rate on Nova, down from about 15%" },
     { value: "84%", label: "Strokes caught by NeuroPredict, up from none" },
     {
@@ -517,8 +518,79 @@ export const recruiter = {
       label: "Open-source fixes merged into widely used developer tools",
     },
   ],
-  /* How many project cards to show, taken from the top of `projects`. */
-  projectCount: 3,
+  /* Each project shown in full, best first. Every fact and number here is
+     already on the page (see `projects`), so recruiter mode never claims more. */
+  showcase: [
+    {
+      name: "RepoScribe",
+      label: "Best project",
+      pitch: "An AI code reviewer for GitHub repos, live at reposcribe.dev. Paste any public repo and get a score, the top findings and answers you can trust, with no account needed.",
+      stats: [
+        { value: "144", label: "browser tests before every release" },
+        { value: "343", label: "unit tests" },
+        { value: "10x", label: "fewer server calls, kept on the free tier" },
+      ],
+      points: [
+        "Every file and line the AI cites is checked against the real repo before it is shown, so it cannot invent references.",
+        "Opens fix pull requests through a GitHub App with short-lived, per-repo tokens, and never stores a token.",
+      ],
+      stack: "Next.js 15, TypeScript, tRPC, PostgreSQL (Prisma, Neon), Clerk, GitHub App, Vercel",
+      demo: "https://reposcribe.dev",
+      cta: "Try it, no sign-up",
+    },
+    {
+      name: "Nova",
+      label: "AI code generation platform, since Jan 2026",
+      pitch: "An autonomous GPT-5.1 coding agent that turns a prompt into working code, built to keep going when steps fail.",
+      stats: [
+        { value: "<1%", label: "code-generation failure rate, from production logs" },
+        { value: "15%", label: "failure rate before the recovery work" },
+      ],
+      points: [
+        "Runs as Inngest multi-step async workflows, so each step can fail and retry on its own.",
+        "Self-healing error recovery did most of the work in cutting failures, not a bigger model.",
+        "Type-safe from front end to back end with tRPC.",
+      ],
+      stack: "GPT-5.1, Inngest, tRPC, TypeScript",
+      demo: "https://nova-five-black.vercel.app",
+      cta: "Live demo",
+    },
+    {
+      name: "NeuroPredict",
+      label: "Clinical risk model, team of 5, 2023 to 2025",
+      pitch: "A stroke risk screener that actually catches strokes. The model it replaced looked 95% accurate by answering no stroke for everyone.",
+      stats: [
+        { value: "84%", label: "of strokes caught, up from none" },
+        { value: "0.84", label: "ROC-AUC on a held-out set" },
+        { value: "5", label: "people on the team" },
+      ],
+      points: [
+        "Rebuilt as one calibrated logistic regression with balanced class weights.",
+        "The decision threshold is fitted out-of-fold, so the held-out score is honest.",
+        "React front end over a Flask API.",
+      ],
+      stack: "Python, logistic regression, Flask, React",
+      demo: "https://final-2026-vert.vercel.app",
+      cta: "Live demo",
+    },
+    {
+      name: "SortLab",
+      label: "Sorting algorithm visualizer, since 2024",
+      pitch: "Watch 9 sorting algorithms work step by step, every comparison and swap, at the speed and size you choose.",
+      stats: [
+        { value: "9", label: "algorithms, Bubble to Radix" },
+        { value: "1", label: "step drawn per comparison or swap" },
+      ],
+      points: [
+        "JavaScript generator functions yield each comparison and swap as a discrete step.",
+        "The animation never blocks the page while you change the array size and speed.",
+        "A live stats panel counts the work as it happens.",
+      ],
+      stack: "JavaScript, generator functions",
+      demo: "https://sort-visualizer-1-gwic.onrender.com",
+      cta: "Live demo",
+    },
+  ],
   outro: "Want the long version?",
   outroLink: "Turn recruiter mode off",
 };
